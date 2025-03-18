@@ -14,9 +14,27 @@
 
 ## Features and Improvements
 - [ ] Consider additional helper methods for common use cases
+  - [ ] Extract Player UUIDs helper method
+  - [ ] Match filtering utility
+  - [ ] Player performance aggregation functions
+  - [ ] Flattened player lookup response helper
+- [ ] Improve error handling
+  - [ ] Enhanced rate limit handling with exponential backoff
+  - [ ] Input parameter validation
 - [ ] Evaluate performance optimization opportunities
+  - [ ] Async versions of API methods
+  - [ ] Batch processing for multiple player lookup
+  - [ ] Selective field retrieval
 - [ ] Consider adding unit tests for all SDK methods
 - [ ] Explore integration with other tools/frameworks
+
+## SDK Advanced Features
+- [ ] Data export utilities (CSV, JSON)
+- [ ] Enhanced documentation with visual diagrams
+- [ ] More comprehensive error handling with specific error classes
+- [ ] Method for retrieving god/character metadata
+- [ ] Support for tournament/competitive match data
+- [ ] Progress callbacks for multi-call operations
 
 ## Testing
 - [ ] Develop comprehensive test suite
@@ -83,7 +101,7 @@
 ## Next Steps
 - [ ] Add more comprehensive test coverage for SDK methods
 - [ ] Enhance the Streamlit app with more visualization options
-- [ ] Add helper methods based on common use cases identified in the Streamlit app
+- [ ] Implement the SDK improvements documented in sdk_improvements.md
 - [ ] Document potential SDK improvements for future releases
 - [ ] Consider public deployment of the Streamlit app for demonstration purposes
 - [ ] Add data export features to the Streamlit app
