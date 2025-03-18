@@ -1,0 +1,46 @@
+[
+  {
+    "player_uuid": "test-player-uuid-123456789",
+    "team_id": 1,
+    "placement": 1,
+    "duration_seconds": 1800,
+    "joined_match_timestamp": "2023-06-01T12:00:00Z",
+    "left_match_timestamp": "2023-06-01T12:30:00Z",
+    "custom_data": {
+      "CharacterChoice": "Gods.Anubis",
+      "Kills": "10",
+      "Deaths": "5",
+      "Assists": "7",
+      "TowerKills": "2",
+      "PhoenixKills": "1",
+      "TitanKills": "0",
+      "TotalDamage": "25000",
+      "TotalNPCDamage": "15000",
+      "TotalDamageTaken": "20000",
+      "TotalDamageMitigated": "10000",
+      "TotalGoldEarned": "12000",
+      "TotalXPEarned": "15000",
+      "TotalStructureDamage": "5000",
+      "TotalMinionDamage": "10000",
+      "TotalAllyHealing": "0",
+      "TotalSelfHealing": "8000",
+      "TotalWardsPlaced": "5",
+      "PlayerLevel": "20",
+      "AssignedRole": "Mid",
+      "PlayedRole": "Mid",
+      "Items": "{\"Item1\":\"00000000-0000-0000-0000-00000000008c\",\"Item2\":\"00000000-0000-0000-0000-0000000000af\"}",
+      "RolePreferences": "{\"First\":\"Mid\",\"Second\":\"Solo\"}"
+    },
+    "match": {
+      "match_id": "test-match-id-123456789",
+      "start_timestamp": "2023-06-01T12:00:00Z",
+      "end_timestamp": "2023-06-01T12:30:00Z",
+      "custom_data": {
+        "CurrentMap": "Conquest",
+        "CurrentMode": "Ranked",
+        "LobbyType": "Normal",
+        "WinningTeam": "1"
+      }
+    }
+  }
+] 

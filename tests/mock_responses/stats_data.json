@@ -1,0 +1,16 @@
+{
+  "total_matches_played": 150,
+  "total_wins": 75,
+  "total_losses": 75,
+  "win_percentage": 50.0,
+  "average_kills_per_match": 8.5,
+  "average_deaths_per_match": 6.2,
+  "average_assists_per_match": 9.1,
+  "highest_kills_in_match": 22,
+  "total_kills": 1275,
+  "total_deaths": 930,
+  "total_assists": 1365,
+  "total_damage_dealt": 3500000,
+  "total_damage_taken": 2900000,
+  "total_healing": 950000
+} 

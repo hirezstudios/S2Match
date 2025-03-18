@@ -1,0 +1,22 @@
+{
+  "display_names": [
+    {
+      "TestPlayer": [
+        {
+          "player_id": 12345,
+          "player_uuid": "test-player-uuid-123456789",
+          "platform": "Steam",
+          "display_name": "TestPlayer",
+          "linked_portals": [
+            {
+              "player_id": 54321,
+              "player_uuid": "linked-player-uuid-987654321",
+              "platform": "XboxLive",
+              "display_name": "Xbox_TestPlayer"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+} 
