@@ -52,4 +52,4 @@ ehthumbs.db
 Thumbs.db
 
 # Project specific
-examples/example_response_*.json 
+examples/example_response_*.json streamlit_app/logs/
