@@ -22,6 +22,7 @@ A Python SDK for external partners and community websites to access SMITE 2 matc
   - [Match History](#example-match-history)
   - [Player Statistics](#example-player-statistics)
   - [Full Player Data](#example-full-player-data)
+- [Streamlit Companion App](#streamlit-companion-app)
 - [Logging](#logging)
 - [Error Handling](#error-handling)
 - [Performance Optimization](#performance-optimization)
@@ -45,6 +46,7 @@ S2Match provides a streamlined interface for retrieving and transforming SMITE 2
 - **Caching**: Built-in response caching to improve performance and respect rate limits
 - **Comprehensive Logging**: Detailed logging for debugging and monitoring
 - **Rate Limiting Support**: Configurable delays between API calls to respect rate limits
+- **Interactive Companion App**: Streamlit-based web application for exploring SDK features
 
 ## Installation
 
@@ -538,6 +540,55 @@ if full_data.get("MatchHistory"):
     for i, match in enumerate(full_data["MatchHistory"][:3], 1):
         print(f"  Match {i}: {match.get('god_name')} - {match.get('mode')} - K/D/A: {match.get('basic_stats', {}).get('Kills', 0)}/{match.get('basic_stats', {}).get('Deaths', 0)}/{match.get('basic_stats', {}).get('Assists', 0)}")
 ```
+
+## Streamlit Companion App
+
+The S2Match SDK includes an interactive Streamlit companion application that provides a user-friendly interface for exploring all SDK features.
+
+> **Note**: The Streamlit companion app is currently a work in progress but already offers comprehensive functionality for exploring the SDK.
+
+### Features
+
+- **Home Page**: Overview of the SDK and configuration options
+- **Player Lookup**: Search for players by display name across platforms
+- **Match History**: View detailed match data with performance visualizations
+- **Player Statistics**: Analyze player performance metrics with charts
+- **Full Player Data**: Comprehensive view of all player-related data in one place
+- **API Explorer**: Interactive interface for testing any SDK method directly
+
+### Running the App
+
+To run the Streamlit companion app:
+
+```bash
+# Install Streamlit dependencies
+pip install -r streamlit_app/requirements.txt
+
+# Run the app
+streamlit run streamlit_app/Home.py
+```
+
+Or use the included shell script:
+
+```bash
+./run_streamlit_app.sh
+```
+
+The app will open in your default web browser at http://localhost:8501.
+
+### Demo Mode
+
+The companion app includes a demo mode that uses mock data if you don't have API credentials. This allows you to explore the interface and functionality without a live API connection.
+
+When you're ready to use live data, enter your API credentials in the sidebar on the Home page and click "Initialize SDK".
+
+### Screenshots
+
+*Coming soon*
+
+### Feedback
+
+We welcome feedback on the Streamlit companion app as we continue to develop and improve it. Please submit issues or suggestions through the repository issue tracker.
 
 ## Logging
 
