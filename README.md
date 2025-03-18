@@ -9,6 +9,7 @@ A Python SDK for external partners and community websites to access SMITE 2 matc
 - [Configuration](#configuration)
   - [Environment Variables](#environment-variables)
   - [SDK Options](#sdk-options)
+- [RallyHere API Endpoints](#rallyhere-api-endpoints)
 - [Quick Start](#quick-start)
 - [API Reference](#api-reference)
   - [Player Lookup](#player-lookup)
@@ -90,6 +91,32 @@ sdk = S2Match(
     rate_limit_delay=0.5                  # Add delay between API calls (seconds)
 )
 ```
+
+## RallyHere API Endpoints
+
+The S2Match SDK interacts with the following RallyHere Environment API endpoints:
+
+### Authentication
+- **`/users/v2/oauth/token`** - Obtain access token for API requests
+
+### Player Lookup
+- **`/users/v1/player`** - Look up players by display name and platform
+- **`/users/v1/player/{player_id}/linked_portals`** - Get linked portal accounts for a player
+- **`/users/v1/platform-user`** - Find player by platform identity (e.g., Steam ID)
+
+### Match Data
+- **`/match/v1/player/{player_uuid}/match`** - Get match history for a specific player
+- **`/match/v1/match`** - Get matches by instance ID
+
+### Player Statistics
+- **`/match/v1/player/{player_uuid}/stats`** - Get player statistics
+
+### Ranking
+- **`/rank/v2/player/{player_uuid}/rank`** - Get player's rank list
+- **`/rank/v3/rank/{rank_id}`** - Get rank configuration
+- **`/rank/v2/player/{player_uuid}/rank/{rank_id}`** - Get detailed rank information
+
+The SDK handles all the authentication, request formatting, and response parsing for these endpoints, allowing you to work with a simplified API focused on SMITE 2 data.
 
 ## Quick Start
 

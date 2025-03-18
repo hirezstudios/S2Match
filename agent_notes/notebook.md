@@ -25,6 +25,29 @@ The SDK provides methods for:
 - Getting player statistics
 - Transforming raw data into a more accessible format
 
+## RallyHere API Endpoints
+The SDK interacts with the following RallyHere Environment API endpoints:
+
+### Authentication
+- `/users/v2/oauth/token` - Obtain access token for API requests
+
+### Player Lookup
+- `/users/v1/player` - Look up players by display name and platform
+- `/users/v1/player/{player_id}/linked_portals` - Get linked portal accounts for a player
+- `/users/v1/platform-user` - Find player by platform identity (e.g., Steam ID)
+
+### Match Data
+- `/match/v1/player/{player_uuid}/match` - Get match history for a specific player
+- `/match/v1/match` - Get matches by instance ID
+
+### Player Statistics
+- `/match/v1/player/{player_uuid}/stats` - Get player statistics
+
+### Ranking
+- `/rank/v2/player/{player_uuid}/rank` - Get player's rank list
+- `/rank/v3/rank/{rank_id}` - Get rank configuration
+- `/rank/v2/player/{player_uuid}/rank/{rank_id}` - Get detailed rank information
+
 ## Testing Notes
 Example execution confirmed the SDK can:
 - Successfully authenticate with the API
