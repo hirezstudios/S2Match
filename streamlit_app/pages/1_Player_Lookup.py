@@ -608,10 +608,10 @@ if search_button and player_data:
                                     # Expand to see linked accounts
                                     with st.expander("View Linked Accounts", expanded=False):
                                         for j, portal in enumerate(linked_portals):
-                                            st.write(f"**Linked Account {j+1}**")
-                                            st.write(f"Platform: {portal.get('platform', 'Unknown')}")
-                                            st.write(f"UUID: `{portal.get('player_uuid', 'Unknown')}`")
-                                            
+                                            st.write(f"Platform: {portal.get('platform', 'Unknown')}  \n"
+                                                     f"Player Name: {portal.get('display_name', 'Unknown')}  \n"
+                                                     f"UUID: `{portal.get('player_uuid', 'Unknown')}`")
+
                         st.markdown("---")
                         
             # Using the new extract_player_uuids helper method
