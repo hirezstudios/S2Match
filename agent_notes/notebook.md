@@ -1,180 +1,171 @@
-# SMITE 2 Match Data SDK - Notebook
+# SMITE 2 Match Data SDK - Development Notebook
 
-## Project Overview
-This project is a Python SDK for interacting with the RallyHere Environment API to retrieve and transform SMITE 2 match data in a standardized format. The SDK is designed for external partners to easily access player statistics, match history, and related information.
+## 2023-03-19: Enhanced Rate Limit Handling Implementation
 
-## Key Observations
-- The SDK successfully authenticates and retrieves data from the API
-- Match data is properly transformed into a SMITE 2-friendly format
-- The example script runs successfully and demonstrates key functionality
-- The `.env` file contains the necessary credentials and configuration options
+Today we implemented the Enhanced Rate Limit Handling feature, which improves the SDK's resilience when dealing with API rate limits. This is an important improvement for production use cases where high-volume requests might trigger rate limiting from the RallyHere API.
 
-## API Credentials
-The SDK uses the following environment variables for authentication:
-- CLIENT_ID
-- CLIENT_SECRET
-- RH_BASE_URL
+### Implementation Notes
 
-These are already configured in the `.env` file with valid credentials.
+- Added new configuration parameters to the SDK constructor:
+  - `max_retries`: Maximum number of retry attempts (default: 3)
+  - `base_retry_delay`: Initial delay before first retry (default: 1.0 seconds)
+  - `max_retry_delay`: Maximum delay between retries (default: 60.0 seconds)
 
-## Core Functionality
-The SDK provides methods for:
-- Authentication with the RallyHere Environment API
-- Retrieving player information by platform and display name
-- Fetching match history for specific players
-- Getting player statistics
-- Transforming raw data into a more accessible format
+- Created a robust exponential backoff algorithm with random jitter to prevent synchronized retries:
+  - Formula: `min(base_delay * (2^retry_count), max_delay) ± jitter`
+  - The jitter is calculated as ±20% of the delay to add randomization
 
-## RallyHere API Endpoints
-The SDK interacts with the following RallyHere Environment API endpoints:
+- Implemented a powerful request wrapper method `_make_request_with_retry()` that:
+  - Makes the initial API request
+  - Automatically detects rate limit responses (HTTP 429)
+  - Applies the backoff strategy and retries the request
+  - Respects the `Retry-After` header if provided by the server
+  - Properly handles error cases and exceptions
 
-### Authentication
-- `/users/v2/oauth/token` - Obtain access token for API requests
+- Added comprehensive unit tests for all aspects of the rate limit handling:
+  - Tests for backoff calculation
+  - Tests for retry behavior with mock responses
+  - Tests for Retry-After header handling
 
-### Player Lookup
-- `/users/v1/player` - Look up players by display name and platform
-- `/users/v1/player/{player_id}/linked_portals` - Get linked portal accounts for a player
-- `/users/v1/platform-user` - Find player by platform identity (e.g., Steam ID)
+- Updated the Streamlit app with:
+  - Configuration settings for rate limit parameters
+  - An interactive visualization of the exponential backoff strategy
+  - Proper display of rate limit status
 
-### Match Data
-- `/match/v1/player/{player_uuid}/match` - Get match history for a specific player
-- `/match/v1/match` - Get matches by instance ID
+### Observations
 
-### Player Statistics
-- `/match/v1/player/{player_uuid}/stats` - Get player statistics
+- The exponential backoff approach is much more robust than the previous simple fixed delay
+- The implementation is non-invasive, gradually updating existing methods to use the new wrapper
+- The proper handling of Retry-After headers ensures we comply with the server's requirements
+- Error handling is comprehensive and provides clear logs for troubleshooting
 
-### Ranking
-- `/rank/v2/player/{player_uuid}/rank` - Get player's rank list
-- `/rank/v3/rank/{rank_id}` - Get rank configuration
-- `/rank/v2/player/{player_uuid}/rank/{rank_id}` - Get detailed rank information
+### Next Steps
 
-## Testing Notes
-Example execution confirmed the SDK can:
-- Successfully authenticate with the API
-- Retrieve player data by display name
-- Fetch match history for a player
-- Get comprehensive player data including linked accounts
+This implementation completes all the helper methods in our initial improvement plan. For future enhancements, we should consider:
 
-## Streamlit Companion App Development
+1. More sophisticated rate limit tracking (per-endpoint limiting)
+2. Improved error reporting and recovery mechanisms
+3. Additional visualization tools for match data analysis
 
-### Implementation Process
-We've developed a Streamlit companion app to provide an interactive interface for exploring the S2Match SDK. The development process involved:
+## 2023-03-19: Flattened Player Lookup Response Implementation
 
-1. **Planning the Application Structure**
-   - Defined key pages based on SDK functionality
-   - Created a consistent navigation system
-   - Designed a modular component structure
+Today we implemented the Flattened Player Lookup Response Helper method, which simplifies the deeply nested player lookup response structure into a flat list of player objects. This helper addresses a common pain point when working with the player lookup endpoint.
 
-2. **Building Core Functionality**
-   - Implemented SDK initialization and authentication
-   - Created data retrieval and visualization components
-   - Developed interactive forms for parameter input
+### Implementation Notes
 
-3. **Creating Data Visualizations**
-   - Implemented charts and graphs for match performance
-   - Developed network visualizations for linked accounts
-   - Created interactive tables for data exploration
+- Added the `flatten_player_lookup_response()` method to the S2Match class that:
+  - Takes the complex nested response structure and transforms it to a simple list
+  - Adds the display name to each player record for easier reference
+  - Handles edge cases like empty responses properly
+- Created comprehensive unit tests covering:
+  - Normal case with multiple players
+  - Empty response handling
+  - Empty display_names list
+  - Empty player arrays
+- Updated the examples script with an example that shows both raw and flattened structures
+- Enhanced the Streamlit app's Player Lookup page with a toggle to show either raw or flattened data
 
-4. **Adding Demo Mode**
-   - Implemented mock data generation for all pages
-   - Created realistic sample responses
-   - Ensured seamless switching between demo and live modes
+### Observations
 
-5. **Enhancing User Experience**
-   - Added code examples on all pages
-   - Implemented detailed tooltips and documentation
-   - Provided raw JSON viewers for developers
+- The flattened structure is much easier to work with in both code and UI contexts
+- This simple transformation saves many lines of code when processing player lookup results
+- The implementation is very lightweight with minimal overhead
+- Adding the display_name directly to each player record eliminates the need to track it separately
 
-### Key Learnings from Streamlit Implementation
+### Next Steps
 
-1. **Data Structure Complexity**
-   - The nested structure of the SDK responses required careful handling in Streamlit
-   - Data transformation was often needed to make responses more suitable for visualization
+- Consider adding more transformation methods to simplify other complex responses
+- Add sorting/filtering capabilities to the flattened list
 
-2. **Enhanced Error Handling Needs**
-   - Building the UI highlighted the importance of detailed error messages
-   - We added context-specific error handling throughout the app
+## 2023-03-18: Player Performance Aggregation Implementation
 
-3. **Performance Considerations**
-   - Session state management is critical for performance in Streamlit
-   - Caching helps reduce unnecessary API calls
+Today we implemented the Player Performance Aggregation helper method to calculate comprehensive performance metrics from a player's match history. This makes it easy to get insights from match data with a single function call.
 
-4. **API Response Variations**
-   - Some API endpoints return inconsistent data structures
-   - The app needed to handle missing or unexpected data gracefully
+### Implementation Notes
 
-5. **Visualization Requirements**
-   - Different data types required specific visualization approaches
-   - Interactive visualizations provided the best user experience
+- Added the `calculate_player_performance()` method to the S2Match class that:
+  - Analyzes match data to produce various performance statistics
+  - Calculates per-god statistics (win rates, KDA, etc.)
+  - Calculates per-mode statistics (win rates, KDA, etc.)
+  - Identifies favorite and best-performing gods and roles
+- Created comprehensive unit tests covering:
+  - Normal case with multiple matches
+  - Cases with only losses or wins
+  - Empty matches list
+  - Various god and mode combinations
+- Updated the Streamlit app to use this helper, significantly simplifying the Player Statistics page
+- Added visualizations for god performance and mode performance
 
-### Streamlit-Specific Techniques Used
+### Observations
 
-1. **Session State Management**
-   - Used st.session_state for persistent storage across page navigation
-   - Cached API responses to improve performance
+- The consolidated statistics are much more informative than basic match data
+- Identifying "best performing" vs "most played" gods provides valuable insights
+- Performance by game mode helps identify player strengths across different scenarios
+- Calculation is efficient and handles edge cases well
 
-2. **Dynamic UI Components**
-   - Implemented conditional rendering based on data availability
-   - Created expandable sections for detailed information
+### Next Steps
 
-3. **Data Visualization**
-   - Used Plotly for interactive charts and graphs
-   - Implemented NetworkX with Plotly for relationship visualization
-   - Created custom styled components with HTML/CSS via st.markdown
+- Consider adding more advanced metrics like damage per minute, gold per minute
+- Add trend analysis to track improvement over time
+- Consider adding percentile comparisons with global averages (if available)
 
-4. **Form Handling**
-   - Implemented validation for user inputs
-   - Created dynamic parameter forms based on method signatures
+## 2023-03-15: Match Filtering Helper Implementation
 
-5. **Error Handling and Logging**
-   - Added comprehensive logging throughout the app
-   - Implemented user-friendly error messages with suggestions
+Today we added a match filtering helper method to the SDK that allows filtering match data by various criteria. This simplifies data analysis and helps extract relevant matches for specific scenarios.
 
-## Streamlit Companion App Observations and SDK Improvement Ideas
+### Implementation Notes
 
-While developing the Streamlit companion app, we've identified several potential improvements for the SDK:
+- Added the `filter_matches()` method to the S2Match class that:
+  - Filters by god name
+  - Filters by game mode
+  - Filters by map
+  - Filters by date range
+  - Filters by win/loss status
+  - Filters by performance metrics (kills, deaths, KDA, damage, etc.)
+- Created comprehensive unit tests for each filter type and combinations
+- Updated the Streamlit app to use this helper in the Match History page
+- Added filter controls to the Streamlit UI
 
-### Data Structure Improvements
-1. **Simplify Response Nesting**: The player lookup response structure (`display_names` → list of dicts → player arrays) is overly complex to navigate. Consider providing a helper method to flatten this into a simpler list of player objects.
+### Observations
 
-2. **Consistent Return Structures**: Methods like `fetch_player_with_displayname` and `fetch_matches_by_player_uuid` return differently structured data. More consistency would improve developer experience.
+- The filter implementation is very flexible and handles multiple criteria well
+- Date range filtering required special handling for different date formats
+- Performance metric filtering is particularly useful for finding standout matches
+- The implementation properly handles edge cases like missing fields
 
-3. **Type Hints Expansion**: While the SDK has basic type hints, expand them to cover nested structures and provide more detailed documentation of response formats.
+### Next Steps
 
-### Additional Helper Methods
-1. **Extract Player UUID**: Add a helper method to easily extract player UUIDs from the complex player lookup response structure.
+- Consider adding more filter types as needed
+- Add support for OR conditions (currently all filters are AND)
+- Consider adding regex/pattern matching for text fields
 
-2. **Match Filtering**: Add methods to filter match data by date range, game mode, god/character, etc. to avoid client-side filtering.
+## 2023-03-12: Extract Player UUIDs Helper Implementation
 
-3. **Data Aggregation**: Provide methods for common aggregations like K/D/A averages, win rates by god/role, etc.
+Today we implemented the first helper method, `extract_player_uuids()`, which extracts all player UUIDs from a player lookup response. This simplifies a common operation when working with player data.
 
-4. **Cross-Method Integration**: Add methods that combine data from multiple endpoints into useful aggregates (e.g., match history + player stats).
+### Implementation Notes
 
-### User Experience Enhancements
-1. **Error Handling**: Enhance error messages to be more specific about what went wrong and provide suggestions for resolution.
+- Added the method to the S2Match class to navigate the nested response structure
+- Created unit tests to verify functionality with various response formats
+- Updated the examples script to demonstrate usage
+- Integrated with the Streamlit app in the Player Lookup page
 
-2. **Rate Limit Handling**: Add exponential backoff for rate limit errors instead of just configurable delays.
+### Observations
 
-3. **Data Validation**: Add validation for input parameters to catch common errors before making API calls.
+- The helper significantly reduces boilerplate code in applications
+- It properly handles the nested nature of the API response
+- Edge cases like missing fields are handled gracefully
+- The implementation is lightweight and efficient
 
-4. **Progress Callbacks**: For methods that make multiple API calls, provide a way to track progress.
+### Next Steps
 
-### Performance Optimizations
-1. **Batch Requests**: Allow batching of requests for multiple players or matches to reduce API call overhead.
+- Continue implementing more helper methods to simplify common operations
+- Consider adding more transformation methods for different response types
 
-2. **Selective Field Retrieval**: Add options to only retrieve specific fields to reduce data transfer.
+## Questions to Consider
 
-3. **Async Support**: Consider adding async versions of methods for better performance in concurrent contexts.
+1. Should we add a method to extract linked portal UUIDs specifically? This could be useful for getting all linked accounts for a player.
 
-### Documentation Improvements
-1. **Concrete Examples**: Add more concrete examples for each method showing common use cases.
+2. Should we add a method to extract all display names from a player lookup response? This could be useful for search results.
 
-2. **Visual Diagrams**: Include diagrams explaining the relationships between different data structures.
-
-3. **Usage Patterns**: Document common patterns for working with the data, especially for complex nested structures.
-
-## Future Reference
-- The SDK includes caching functionality to improve performance
-- Rate limiting can be configured through environment variables
-- Item data is enriched using a local items.json file
-- The Streamlit companion app provides a visual interface for exploring all SDK features 
+3. Are there other frequently used data extraction patterns that could benefit from helper methods? 

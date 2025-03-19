@@ -30,6 +30,8 @@ A Python SDK for external partners and community websites to access SMITE 2 matc
 - [Contributing](#contributing)
 - [License](#license)
 - [Acknowledgments](#acknowledgments)
+- [Enhanced Rate Limit Handling](#enhanced-rate-limit-handling)
+- [GitHub Integration](#github-integration)
 
 ## Overview
 
@@ -47,6 +49,14 @@ S2Match provides a streamlined interface for retrieving and transforming SMITE 2
 - **Comprehensive Logging**: Detailed logging for debugging and monitoring
 - **Rate Limiting Support**: Configurable delays between API calls to respect rate limits
 - **Interactive Companion App**: Streamlit-based web application for exploring SDK features
+- **Retrieve player data by platform ID or display name**
+- **Fetch match history for players**
+- **Get player statistics**
+- **Filter match data by god, game mode, date, performance metrics, and more**
+- **Perform player performance analysis across matches**
+- **Flatten complex player lookup responses for easier processing**
+- **Enhanced rate limit handling with exponential backoff**
+- **Response caching to reduce API calls**
 
 ## Installation
 
@@ -86,12 +96,117 @@ When initializing the SDK, you can configure the following options:
 
 ```python
 sdk = S2Match(
-    client_id="your_client_id",           # Override CLIENT_ID env var
-    client_secret="your_client_secret",   # Override CLIENT_SECRET env var
-    base_url="your_base_url",             # Override RH_BASE_URL env var
-    cache_enabled=True,                   # Enable/disable response caching
-    rate_limit_delay=0.5                  # Add delay between API calls (seconds)
+    client_id="your_client_id",             # API client ID
+    client_secret="your_client_secret",     # API client secret
+    base_url="https://api.example.com",     # API base URL
+    cache_enabled=True,                     # Enable response caching
+    rate_limit_delay=0.0,                   # Fixed delay between API calls
+    
+    # Rate limit handling
+    max_retries=3,                          # Maximum retry attempts for rate-limited requests
+    base_retry_delay=1.0,                   # Initial delay in seconds before first retry
+    max_retry_delay=60.0                    # Maximum delay in seconds between retries
 )
+```
+
+All parameters are optional and can be provided via environment variables instead.
+
+### Rate Limit Handling
+
+The SDK features enhanced rate limit handling with exponential backoff:
+
+- When a request receives a HTTP 429 (Too Many Requests) response, the SDK will automatically retry
+- Retries use exponential backoff with jitter to space out requests
+- The SDK respects the `Retry-After` header if provided by the server
+- After `max_retries` attempts, the SDK will give up and raise an exception
+
+The backoff delay is calculated as:
+```
+delay = min(base_retry_delay * (2^retry_count), max_retry_delay) ± jitter
+```
+
+This makes the SDK more resilient during high-volume requests and helps avoid overwhelming the API.
+
+## Enhanced Rate Limit Handling
+
+The S2Match SDK implements sophisticated rate limit handling to ensure your application remains responsive even when interacting with API limits.
+
+### How It Works
+
+When the SDK receives a rate limit response (HTTP 429 Too Many Requests) from the API:
+
+1. It automatically retries the request using an exponential backoff strategy
+2. Each retry increases the wait time between attempts
+3. The SDK adds random jitter to prevent synchronized retries
+4. The SDK respects any `Retry-After` header provided by the server
+5. After reaching the maximum number of retries, the SDK will give up and raise an exception
+
+### Configuration
+
+You can configure the rate limit handling behavior when initializing the SDK:
+
+```python
+from s2match import S2Match
+
+sdk = S2Match(
+    # Standard configuration parameters
+    client_id="your_client_id",
+    client_secret="your_client_secret",
+    base_url="your_base_url",
+    
+    # Rate limit configuration
+    max_retries=3,              # Maximum retry attempts (default: 3)
+    base_retry_delay=1.0,       # Initial delay in seconds (default: 1.0)
+    max_retry_delay=60.0        # Maximum delay in seconds (default: 60.0)
+)
+```
+
+### Backoff Algorithm
+
+The backoff delay is calculated using this formula:
+
+```
+delay = min(base_retry_delay * (2^retry_count), max_retry_delay) ± jitter
+```
+
+Where:
+- `base_retry_delay` is the initial delay (default: 1.0 seconds)
+- `retry_count` is the current retry attempt (starting at 0)
+- `max_retry_delay` is the maximum delay (default: 60.0 seconds)
+- `jitter` is a random value of ±20% of the calculated delay
+
+This creates a backoff pattern like this (with default settings):
+- First retry: ~1.0 seconds
+- Second retry: ~2.0 seconds
+- Third retry: ~4.0 seconds
+- Fourth retry: ~8.0 seconds
+- ...and so on up to max_retry_delay
+
+### Example Usage
+
+The retry mechanism is automatic and built into all API requests. You don't need to write any special code to handle rate limits:
+
+```python
+# This code automatically handles rate limits
+try:
+    player_data = sdk.fetch_player_with_displayname(["PlayerName"])
+    matches = sdk.get_matches_by_player_uuid(player_uuid)
+except requests.exceptions.RequestException as e:
+    # This will only be raised if all retries fail
+    print(f"Failed after multiple retries: {e}")
+```
+
+### Logging
+
+The SDK logs information about rate limit retries:
+- Warning level log when a rate limit is hit and a retry is scheduled
+- Error level log when max retries are exceeded
+
+You can adjust the logging level to see more or less information:
+
+```python
+import logging
+logging.getLogger("S2Match").setLevel(logging.DEBUG)
 ```
 
 ## RallyHere API Endpoints
@@ -135,13 +250,9 @@ player_data = sdk.fetch_player_with_displayname(
     include_linked_portals=True
 )
 
-# Get player UUID from the response
-player_uuid = None
-for display_name_dict in player_data.get("display_names", []):
-    for name, players in display_name_dict.items():
-        if players:
-            player_uuid = players[0].get("player_uuid")
-            break
+# Get player UUID from the response using the helper method
+player_uuids = sdk.extract_player_uuids(player_data)
+player_uuid = player_uuids[0] if player_uuids else None
 
 # Get player match history
 if player_uuid:
@@ -284,6 +395,155 @@ Fetch and enrich a player's ranks from the RallyHere Environment API.
 - `player_uuid`: UUID of the player
 
 **Returns:** Dictionary with rank information
+
+### Helper Methods
+
+#### `extract_player_uuids(player_lookup_response)`
+
+Extract all player UUIDs from a player lookup response. This simplifies the process of extracting player UUIDs from the nested response structure.
+
+**Parameters:**
+- `player_lookup_response`: The response from fetch_player_with_displayname
+
+**Returns:** List of player UUIDs
+
+#### `filter_matches(matches, filters=None)`
+
+Filter match data by various criteria such as god name, game mode, date range, and performance metrics.
+
+**Parameters:**
+- `matches`: List of match data dictionaries
+- `filters`: Dictionary of filter criteria, e.g.,
+  ```python
+  {
+      "god_name": "Anubis",      # Filter by god/character
+      "mode": "Conquest",        # Filter by game mode
+      "map": "Conquest Map",     # Filter by map
+      "min_date": "2023-01-01",  # Filter by minimum date
+      "max_date": "2023-12-31",  # Filter by maximum date
+      "min_kills": 5,            # Filter by minimum kills
+      "min_kda": 2.0,            # Filter by minimum KDA ratio
+      "win_only": True,          # Filter to only show wins
+      "max_deaths": 5            # Filter by maximum deaths
+  }
+  ```
+
+**Returns:** Filtered list of match data dictionaries
+
+#### `calculate_player_performance(matches)`
+
+Calculate comprehensive performance metrics from a player's match history data.
+
+**Parameters:**
+- `matches`: List of match data dictionaries
+
+**Returns:** Dictionary containing detailed performance metrics including:
+
+```python
+{
+    # Overall stats
+    "total_matches": 25,       # Total number of matches played
+    "wins": 15,                # Total wins
+    "losses": 10,              # Total losses
+    "win_rate": 0.6,           # Win rate (0.0-1.0)
+    
+    # Aggregated combat stats
+    "total_kills": 250,        # Total kills across all matches
+    "total_deaths": 150,       # Total deaths across all matches
+    "total_assists": 300,      # Total assists across all matches
+    "total_damage": 500000,    # Total damage dealt
+    "total_healing": 100000,   # Total healing done
+    # ... other total stats ...
+    
+    # Average stats
+    "avg_kills": 10.0,         # Average kills per match
+    "avg_deaths": 6.0,         # Average deaths per match
+    "avg_assists": 12.0,       # Average assists per match
+    "avg_kda": 3.67,           # Overall KDA ratio
+    "avg_damage_per_match": 20000.0,  # Average damage per match
+    # ... other average stats ...
+    
+    # Favorites and best performing
+    "favorite_god": "Thor",    # Most played god
+    "favorite_role": "Jungle", # Most played role
+    "favorite_mode": "Conquest", # Most played game mode
+    "best_performing_god": "Anubis", # God with highest KDA (min 3 matches)
+    
+    # Detailed stats by god/role/mode
+    "god_stats": {
+        "Thor": {
+            "matches": 10,       # Matches played with this god
+            "wins": 7,           # Wins with this god 
+            "win_rate": 0.7,     # Win rate with this god
+            "kills": 100,        # Total kills with this god
+            "deaths": 50,        # Total deaths with this god
+            "assists": 120,      # Total assists with this god
+            "avg_kills": 10.0,   # Average kills per match
+            "avg_deaths": 5.0,   # Average deaths per match
+            "avg_assists": 12.0, # Average assists per match
+            "avg_kda": 4.4       # KDA ratio with this god
+        },
+        # ... other gods ...
+    },
+    "mode_stats": {
+        "Conquest": {
+            "matches": 20,       # Matches played in this mode
+            "wins": 12,          # Wins in this mode
+            "win_rate": 0.6,     # Win rate in this mode
+            # ... other mode-specific stats ...
+        },
+        # ... other modes ...
+    },
+    "role_stats": {
+        "Jungle": {
+            "matches": 15,       # Matches played in this role
+            "wins": 10,          # Wins in this role
+            "win_rate": 0.67,    # Win rate in this role
+        },
+        # ... other roles ...
+    }
+}
+```
+
+#### `flatten_player_lookup_response(response)`
+
+Flatten the deeply nested player lookup response structure into a simple list of player objects.
+
+**Parameters:**
+- `response`: The response from fetch_player_with_displayname
+
+**Returns:** List of player dictionaries with display_name added to each record
+
+**Before (Raw Response):**
+```python
+{
+    "display_names": [
+        {
+            "PlayerName": [
+                {
+                    "player_uuid": "uuid-1",
+                    "player_id": 12345,
+                    "platform": "Steam"
+                }
+            ]
+        }
+    ]
+}
+```
+
+**After (Flattened Response):**
+```python
+[
+    {
+        "display_name": "PlayerName",
+        "player_uuid": "uuid-1",
+        "player_id": 12345,
+        "platform": "Steam"
+    }
+]
+```
+
+This makes it much easier to iterate through players, filter player data, and display player information in UI components.
 
 ## Response Formats
 
@@ -432,6 +692,12 @@ if display_names:
                 print(f"  Linked portals: {len(linked_portals)}")
                 for portal in linked_portals:
                     print(f"    - {portal.get('platform')}: {portal.get('player_uuid')}")
+
+# Extract all player UUIDs using the helper method
+player_uuids = sdk.extract_player_uuids(player_data)
+print(f"\nExtracted {len(player_uuids)} player UUIDs using the helper method:")
+for uuid in player_uuids:
+    print(f"  {uuid}")
 ```
 
 ### Example: Match History
@@ -473,6 +739,29 @@ for i, match in enumerate(matches, 1):
         for slot, item in match["items"].items():
             if isinstance(item, dict) and "DisplayName" in item:
                 print(f"    {slot}: {item['DisplayName']}")
+
+# Filter matches using the filter_matches helper method
+print("\nFiltering matches:")
+
+# Filter by god name
+thor_matches = sdk.filter_matches(matches, {"god_name": "Thor"})
+print(f"Found {len(thor_matches)} matches with Thor")
+
+# Filter by KDA
+high_kda_matches = sdk.filter_matches(matches, {"min_kda": 3.0})
+print(f"Found {len(high_kda_matches)} matches with KDA >= 3.0")
+
+# Filter wins only
+winning_matches = sdk.filter_matches(matches, {"win_only": True})
+print(f"Found {len(winning_matches)} winning matches")
+
+# Combined filters
+filtered_matches = sdk.filter_matches(matches, {
+    "win_only": True,
+    "min_kills": 10,
+    "mode": "Conquest"
+})
+print(f"Found {len(filtered_matches)} winning Conquest matches with 10+ kills")
 ```
 
 ### Example: Player Statistics
@@ -715,3 +1004,64 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Hi-Rez Studios for SMITE 2
 - RallyHere for the Environment API
 - All contributors and community members 
+
+## GitHub Integration
+
+If you're collaborating on a project using this SDK, you can use the following Git commands to keep your repository up-to-date.
+
+### Pushing Changes to GitHub
+
+If you've made changes and want to update the GitHub repository:
+
+```bash
+# Add all modified files
+git add .
+
+# Commit your changes with a descriptive message
+git commit -m "Add Enhanced Rate Limit Handling feature"
+
+# Push changes to GitHub
+git push origin main
+```
+
+### Pulling Latest Changes
+
+To get the latest changes from the GitHub repository:
+
+```bash
+# Fetch the latest changes
+git fetch
+
+# Merge the changes into your local branch
+git pull origin main
+```
+
+### Submitting Issues or Feature Requests
+
+If you encounter issues or have ideas for improvements:
+
+1. Visit the [GitHub Issues](https://github.com/YourOrg/S2Match/issues) page
+2. Click "New Issue"
+3. Provide a descriptive title and detailed description
+4. Include code samples, log outputs, or screenshots if relevant
+
+### Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Commit your changes (`git commit -m 'Add amazing feature'`)
+5. Push to the branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
+
+## Versioning and Releases
+
+The SDK follows [Semantic Versioning](https://semver.org/):
+
+- **Major version** (x.0.0): Incompatible API changes
+- **Minor version** (0.x.0): Backwards-compatible functionality
+- **Patch version** (0.0.x): Backwards-compatible bug fixes
+
+Check the [Releases](https://github.com/YourOrg/S2Match/releases) page for the latest versions. 

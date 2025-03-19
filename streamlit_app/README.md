@@ -119,6 +119,7 @@ To use the app with your own RallyHere Environment API credentials:
 - ✅ API explorer interface
 - ✅ Code examples on all pages
 - ✅ Demo mode with mock data
+- ✅ Helper methods for common tasks (e.g., extract_player_uuids, filter_matches)
 
 ### Upcoming Features
 - 📋 Enhanced data export options (CSV, Excel)

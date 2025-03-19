@@ -1,0 +1,504 @@
+[
+  {
+    "player_uuid": "e3438d31-c3ee-5377-b645-5a604b0e2b0e",
+    "team_id": null,
+    "placement": null,
+    "joined_match_timestamp": "2025-03-19T00:03:24.640000Z",
+    "left_match_timestamp": null,
+    "duration_seconds": null,
+    "god_name": "UnknownGod",
+    "basic_stats": {
+      "Kills": 0,
+      "Deaths": 0,
+      "Assists": 0,
+      "TowerKills": 0,
+      "PhoenixKills": 0,
+      "TitanKills": 0,
+      "TotalDamage": 0,
+      "TotalNPCDamage": 0,
+      "TotalDamageTaken": 0,
+      "TotalDamageMitigated": 0,
+      "TotalGoldEarned": 0,
+      "TotalXPEarned": 0,
+      "TotalStructureDamage": 0,
+      "TotalMinionDamage": 0,
+      "TotalAllyHealing": 0,
+      "TotalSelfHealing": 0,
+      "TotalWardsPlaced": 0,
+      "PlayerLevel": 0
+    },
+    "assigned_role": null,
+    "played_role": null,
+    "items": {},
+    "role_preferences": {},
+    "damage_breakdown": {},
+    "match_id": "DCE0C1B2-91FF-47A2-950F-74656A8515CE",
+    "match_start": "2025-03-19T00:03:10.777000Z",
+    "match_end": "2025-03-19T00:04:36.120000Z",
+    "map": "L_CQ_F2P_P",
+    "mode": "Conquest",
+    "lobby_type": "Casual",
+    "winning_team": null
+  },
+  {
+    "player_uuid": "e3438d31-c3ee-5377-b645-5a604b0e2b0e",
+    "team_id": "1",
+    "placement": 1,
+    "joined_match_timestamp": "2025-03-18T02:31:09.167000Z",
+    "left_match_timestamp": "2025-03-18T03:09:00.687000Z",
+    "duration_seconds": 2271,
+    "god_name": "Bari",
+    "basic_stats": {
+      "Kills": 26,
+      "Deaths": 5,
+      "Assists": 18,
+      "TowerKills": 1,
+      "PhoenixKills": 1,
+      "TitanKills": 0,
+      "TotalDamage": 54161,
+      "TotalNPCDamage": 154974,
+      "TotalDamageTaken": 34126,
+      "TotalDamageMitigated": 14888,
+      "TotalGoldEarned": 22611,
+      "TotalXPEarned": 31502,
+      "TotalStructureDamage": 3547,
+      "TotalMinionDamage": 70728,
+      "TotalAllyHealing": 0,
+      "TotalSelfHealing": 1471,
+      "TotalWardsPlaced": 9,
+      "PlayerLevel": 20
+    },
+    "assigned_role": "EJungle",
+    "played_role": "EJungle",
+    "items": {
+      "Inventory.Slot.EquipPoint.Starter.1": {
+        "Item_Id": "00000000000000000000000000000799",
+        "Legacy_Id": "1945",
+        "DisplayName": "Bumba's Hammer",
+        "Description": "Passive: If you have more Intelligence than Strength from items, gain 60 INT, otherwise, gain 35 STR. Your Basic Attacks deal +75 True Damage and your Abilities deal +50% damage against Jungle Camps, Structures, and Jungle Bosses. After casting an ability your next Basic Attack deals an additional 40 True Damage. hitting this basic attack reduces your active cooldowns by 0.75s and you are healed for 60 health. Requires Level 20.",
+        "Stats": [
+          {
+            "TagName": "Character.Stat.MaxHealth",
+            "Value": 200.0
+          },
+          {
+            "TagName": "Character.Stat.CooldownReductionPercent",
+            "Value": 10.0
+          }
+        ]
+      },
+      "Inventory.Slot.EquipPoint.Relic.1": {
+        "Item_Id": "00000000000000000000000000000766",
+        "Legacy_Id": "1894",
+        "DisplayName": "Blink Rune",
+        "Description": "Active: You are Teleported to a targeted location up to 5.6m away. This effect can be used during combat or while firing another ability. Cooldown: 240s",
+        "Stats": []
+      },
+      "Inventory.Slot.EquipPoint.Items.1": {
+        "Item_Id": "00000000000000000000000000001018",
+        "DisplayName": "<display name missing>"
+      },
+      "Inventory.Slot.EquipPoint.Items.2": {
+        "Item_Id": "000000000000000000000000000000AA",
+        "Legacy_Id": "170",
+        "DisplayName": "Jotunn's Revenge",
+        "Description": "Passive: When you get a Kill or Assist on an enemy god your Non-ultimate Cooldowns are reduced by 1s and your Ultimate Cooldown is reduced by 5s.",
+        "Stats": [
+          {
+            "TagName": "Character.Stat.PhysicalPower",
+            "Value": 45.0
+          },
+          {
+            "TagName": "Character.Stat.CooldownReductionPercent",
+            "Value": 25.0
+          }
+        ]
+      },
+      "Inventory.Slot.EquipPoint.Items.3": {
+        "Item_Id": "000000000000000000000000000000A8",
+        "Legacy_Id": "168",
+        "DisplayName": "Hydra's Lament",
+        "Description": "Passive: When you use an ability you gain 30% increased Basic Attack Damage on your next basic attack for 8s.",
+        "Stats": [
+          {
+            "TagName": "Character.Stat.PhysicalPower",
+            "Value": 40.0
+          },
+          {
+            "TagName": "Character.Stat.MaxMana",
+            "Value": 250.0
+          },
+          {
+            "TagName": "Character.Stat.ManaPerTime",
+            "Value": 5.0
+          },
+          {
+            "TagName": "Character.Stat.CooldownReductionPercent",
+            "Value": 10.0
+          }
+        ]
+      },
+      "Inventory.Slot.EquipPoint.Items.4": {
+        "Item_Id": "000000000000000000000000000000E9",
+        "Legacy_Id": "233",
+        "DisplayName": "Tekko-Kagi",
+        "Description": "Passive: Every time you activate an ability that costs mana you gain 3% Movement Speed and 5 Cooldown Rate for 10s. Stacks up to 3 times.",
+        "Stats": [
+          {
+            "TagName": "Character.Stat.PhysicalPower",
+            "Value": 40.0
+          },
+          {
+            "TagName": "Character.Stat.CooldownReductionPercent",
+            "Value": 15.0
+          }
+        ]
+      },
+      "Inventory.Slot.EquipPoint.Items.5": {
+        "Item_Id": "0000000000000000000000000000078A",
+        "Legacy_Id": "1930",
+        "DisplayName": "The Crusher",
+        "Description": "Passive: Enemies hit by your damaging Abilities take bonus damage equal to an additional 35% of your Strength over 1s. Subsequent hits on the same target do half the bonus damage for the next 3s.",
+        "Stats": [
+          {
+            "TagName": "Character.Stat.PhysicalPower",
+            "Value": 45.0
+          },
+          {
+            "TagName": "Character.Stat.PhysicalPenetrationPercent",
+            "Value": 10.0
+          },
+          {
+            "TagName": "Character.Stat.CooldownReductionPercent",
+            "Value": 10.0
+          }
+        ]
+      },
+      "Inventory.Slot.EquipPoint.Items.6": {
+        "Item_Id": "00000000000000000000000000000099",
+        "Legacy_Id": "153",
+        "DisplayName": "Chronos' Pendant",
+        "Description": "Passive: Your ability cooldowns are reduced by 1s every 10s.",
+        "Stats": [
+          {
+            "TagName": "Character.Stat.MagicalPower",
+            "Value": 40.0
+          },
+          {
+            "TagName": "Character.Stat.CooldownReductionPercent",
+            "Value": 25.0
+          }
+        ]
+      }
+    },
+    "role_preferences": {
+      "EJungle": "1",
+      "EMiddle": "2",
+      "ECarry": "3",
+      "ESupport": "4",
+      "ESolo": "5",
+      "Role Fill": "False"
+    },
+    "damage_breakdown": {
+      "misc_stats": {
+        "Kills": 26,
+        "Deaths": 5,
+        "Assists": 18,
+        "TowerKills": 1,
+        "PhoenixKills": 1,
+        "TitanKills": 0,
+        "TotalDamage": 54161,
+        "TotalNPCDamage": 154974,
+        "TotalDamageTaken": 34126,
+        "TotalDamageMitigated": 14888,
+        "TotalGoldEarned": 22611,
+        "TotalXPEarned": 31502,
+        "TotalStructureDamage": 3547,
+        "TotalMinionDamage": 70728,
+        "TotalAllyHealing": 0,
+        "TotalSelfHealing": 1471,
+        "TotalWardsPlaced": 9,
+        "PlayerLevel": 20,
+        "MinionAssistXP": 3067,
+        "MinionAssistGold": 955,
+        "MinionLowestLevelXP": 14,
+        "JungleCampKillXP": 12437,
+        "JungleCampKillGold": 4023,
+        "PlayerKillXP": 8070,
+        "PlayerKillGold": 5123,
+        "JungleCampAssistXP": 507,
+        "JungleCampAssistGold": 239,
+        "MinionKillXP": 4179,
+        "MinionKillGold": 922,
+        "Gold Blessing": 210,
+        "PlayerAssistXP": 1810,
+        "PlayerAssistGold": 987,
+        "Tower Bounty": 35
+      },
+      "Bari": {
+        "InhandNPCDamage": 47780,
+        "A03NPCDamage": 25998,
+        "A01.Deployable.AbilityNPCDamage": 50709,
+        "A02NPCDamage": 22354,
+        "A03.AttackAfterDashEnhanced.DeployableNPCDamage": 3111,
+        "A04.Deployable.AttackNPCDamage": 1838,
+        "A03Damage": 13764,
+        "InhandDamage": 11773,
+        "A03.AttackAfterDashEnhanced.DeployableDamage": 4059,
+        "A01.Deployable.AbilityDamage": 12626,
+        "A02Damage": 4301,
+        "A04.Deployable.AttackDamage": 4069,
+        "B02Damage": 140,
+        "InhandMinionDamage": 18615,
+        "A01.Deployable.AbilityMinionDamage": 18506,
+        "A03MinionDamage": 13196,
+        "A02MinionDamage": 7714,
+        "A03.AttackAfterDashEnhanced.DeployableMinionDamage": 2212,
+        "A04.Deployable.AttackMinionDamage": 6860
+      },
+      "BumbasCudgelNPCDamage": {
+        "value": 580
+      },
+      "TheCrusherNPCDamage": {
+        "value": 2282
+      },
+      "BumbasHammerNPCDamage": {
+        "value": 320
+      },
+      "BumbasCudgelDamage": {
+        "value": 420
+      },
+      "Arondight": {
+        "ListenerDamage": 1146
+      },
+      "TheCrusherDamage": {
+        "value": 1699
+      },
+      "BumbasHammerDamage": {
+        "value": 160
+      },
+      "BumbasCudgelMinionDamage": {
+        "value": 92
+      },
+      "TheCrusherMinionDamage": {
+        "value": 3331
+      },
+      "BumbasHammerMinionDamage": {
+        "value": 198
+      }
+    },
+    "match_id": "4166D08C-B96C-4A8F-AAEE-DE579037A690",
+    "match_start": "2025-03-18T02:30:56.840000Z",
+    "match_end": "2025-03-18T03:12:14.773000Z",
+    "map": "L_CQ_F2P_P",
+    "mode": "Conquest",
+    "lobby_type": "Casual",
+    "winning_team": "1"
+  },
+  {
+    "player_uuid": "e3438d31-c3ee-5377-b645-5a604b0e2b0e",
+    "team_id": "2",
+    "placement": 1,
+    "joined_match_timestamp": "2025-03-18T02:12:26.690000Z",
+    "left_match_timestamp": "2025-03-18T02:30:26.087000Z",
+    "duration_seconds": 1079,
+    "god_name": "Anhur",
+    "basic_stats": {
+      "Kills": 7,
+      "Deaths": 1,
+      "Assists": 7,
+      "TowerKills": 1,
+      "PhoenixKills": 0,
+      "TitanKills": 0,
+      "TotalDamage": 9866,
+      "TotalNPCDamage": 16329,
+      "TotalDamageTaken": 13357,
+      "TotalDamageMitigated": 9787,
+      "TotalGoldEarned": 9039,
+      "TotalXPEarned": 7704,
+      "TotalStructureDamage": 1352,
+      "TotalMinionDamage": 18263,
+      "TotalAllyHealing": 2455,
+      "TotalSelfHealing": 1521,
+      "TotalWardsPlaced": 1,
+      "PlayerLevel": 13
+    },
+    "assigned_role": "ESupport",
+    "played_role": "ESupport",
+    "items": {
+      "Inventory.Slot.EquipPoint.Starter.1": {
+        "Item_Id": "0000000000000000000000000000078E",
+        "Legacy_Id": "1934",
+        "DisplayName": "War Flag",
+        "Description": "Passive: Getting the assist for an enemy minion or jungle monster dying will provide 8 Bonus gold and restore 8 Health and 5 Mana. You and allied gods within 8.8m also receive a buff that gives 0.25% Movement Speed and 0.5% Attack Speed for 10s. Stacks up to 10 times. Requires level 15 to upgrade.",
+        "Stats": [
+          {
+            "TagName": "Character.Stat.PhysicalProtection",
+            "Value": 10.0
+          },
+          {
+            "TagName": "Character.Stat.MagicalProtection",
+            "Value": 10.0
+          },
+          {
+            "TagName": "Character.Stat.MaxHealth",
+            "Value": 60.0
+          }
+        ]
+      },
+      "Inventory.Slot.EquipPoint.Relic.1": {
+        "Item_Id": "00000000000000000000000000000766",
+        "Legacy_Id": "1894",
+        "DisplayName": "Blink Rune",
+        "Description": "Active: You are Teleported to a targeted location up to 5.6m away. This effect can be used during combat or while firing another ability. Cooldown: 240s",
+        "Stats": []
+      },
+      "Inventory.Slot.EquipPoint.Items.1": {
+        "Item_Id": "00000000000000000000000000000E0B",
+        "Legacy_Id": "3595",
+        "DisplayName": "Eros' Bow",
+        "Description": "Active: Mark an ally god. Each Basic Attack that hits an enemy heals the marked god for 2% of your Maximum Health, once per Basic Attack. Only one ally can be marked at a time. Cooldown: 1s.",
+        "Stats": [
+          {
+            "TagName": "Character.Stat.MaxHealth",
+            "Value": 300.0
+          },
+          {
+            "TagName": "Character.Stat.AttackSpeedPercent",
+            "Value": 30.0
+          }
+        ]
+      },
+      "Inventory.Slot.EquipPoint.Items.2": {
+        "Item_Id": "000000000000000000000000000000B5",
+        "Legacy_Id": "181",
+        "DisplayName": "Pharaoh's Curse",
+        "Description": "Active: Enemies within 5.6m are affected by a 20% Slow and have 20% reduced Attack Speed for 6s. Cooldown: 60s.",
+        "Stats": [
+          {
+            "TagName": "Character.Stat.PhysicalProtection",
+            "Value": 40.0
+          },
+          {
+            "TagName": "Character.Stat.MagicalProtection",
+            "Value": 40.0
+          },
+          {
+            "TagName": "Character.Stat.AttackSpeedPercent",
+            "Value": 15.0
+          }
+        ]
+      },
+      "Inventory.Slot.EquipPoint.Items.3": {
+        "Item_Id": "00000000000000000000000000000787",
+        "Legacy_Id": "1927",
+        "DisplayName": "Berserker's Shield",
+        "Description": "Passive: While below 60% Health you become Berserk for 8s. While Berserk, you gain 30 Protections and 15% Attack Speed. This effect can only occur once every 8 seconds.",
+        "Stats": [
+          {
+            "TagName": "Character.Stat.PhysicalProtection",
+            "Value": 20.0
+          },
+          {
+            "TagName": "Character.Stat.MagicalProtection",
+            "Value": 20.0
+          },
+          {
+            "TagName": "Character.Stat.HealthPerTime",
+            "Value": 5.0
+          },
+          {
+            "TagName": "Character.Stat.AttackSpeedPercent",
+            "Value": 25.0
+          }
+        ]
+      },
+      "Inventory.Slot.EquipPoint.Items.4": {
+        "Item_Id": "00000000000000000000000000000E13",
+        "Legacy_Id": "3603",
+        "DisplayName": "Survivor's Sash",
+        "Description": "",
+        "Stats": [
+          {
+            "TagName": "Character.Stat.MagicalProtection",
+            "Value": 15.0
+          },
+          {
+            "TagName": "Character.Stat.HealthPerTime",
+            "Value": 4.0
+          }
+        ]
+      },
+      "Inventory.Slot.EquipPoint.Talent.1": {
+        "Item_Id": "00000000000000000000000000000E17",
+        "DisplayName": "<display name missing>"
+      }
+    },
+    "role_preferences": {
+      "EJungle": "1",
+      "EMiddle": "2",
+      "ECarry": "3",
+      "ESupport": "4",
+      "ESolo": "5",
+      "Role Fill": "False"
+    },
+    "damage_breakdown": {
+      "misc_stats": {
+        "Kills": 7,
+        "Deaths": 1,
+        "Assists": 7,
+        "TowerKills": 1,
+        "PhoenixKills": 0,
+        "TitanKills": 0,
+        "TotalDamage": 9866,
+        "TotalNPCDamage": 16329,
+        "TotalDamageTaken": 13357,
+        "TotalDamageMitigated": 9787,
+        "TotalGoldEarned": 9039,
+        "TotalXPEarned": 7704,
+        "TotalStructureDamage": 1352,
+        "TotalMinionDamage": 18263,
+        "TotalAllyHealing": 2455,
+        "TotalSelfHealing": 1521,
+        "TotalWardsPlaced": 1,
+        "PlayerLevel": 13,
+        "PlayerAssistXP": 754,
+        "PlayerAssistGold": 567,
+        "PlayerKillXP": 1714,
+        "PlayerKillGold": 1436,
+        "JungleCampKillXP": 1254,
+        "JungleCampKillGold": 439,
+        "JungleCampLowestLevelXP": 90,
+        "JungleCampAssistXP": 574,
+        "JungleCampAssistGold": 235,
+        "MinionKillXP": 659,
+        "MinionKillGold": 145,
+        "MinionAssistXP": 1851,
+        "MinionAssistGold": 642,
+        "MinionLowestLevelXP": 405,
+        "Gold Blessing": 150,
+        "Tower Bounty": 180
+      },
+      "Anhur": {
+        "InhandNPCDamage": 8740,
+        "A02NPCDamage": 7059,
+        "A03NPCDamage": 529,
+        "InhandDamage": 5130,
+        "A02Damage": 2737,
+        "A03Damage": 367,
+        "A04Damage": 1631,
+        "InhandMinionDamage": 11476,
+        "A02MinionDamage": 5722,
+        "A03MinionDamage": 50,
+        "A04MinionDamage": 1015
+      }
+    },
+    "match_id": "9CAF7063-79FC-46B3-862A-FDF8A3E51B18",
+    "match_start": "2025-03-18T02:12:13.730000Z",
+    "match_end": "2025-03-18T02:33:40.213000Z",
+    "map": "L_CQ_F2P_P",
+    "mode": "Conquest",
+    "lobby_type": "Casual",
+    "winning_team": "2"
+  }
+]

@@ -82,7 +82,8 @@ sdk_methods = [
     "get_matches_by_player_uuid",
     "get_player_stats",
     "get_matches_by_instance",
-    "get_full_player_data_by_displayname"
+    "get_full_player_data_by_displayname",
+    "extract_player_uuids"
 ]
 
 # SDK Method Selection

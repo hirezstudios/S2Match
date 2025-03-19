@@ -221,14 +221,232 @@ if fetch_button:
                 st.stop()
         
         # Store matches in session state for reuse
-        st.session_state["current_matches"] = matches
+        if "all_matches" not in st.session_state:
+            st.session_state["all_matches"] = matches.copy()
+
+        if "filtered_matches" not in st.session_state:
+            st.session_state["filtered_matches"] = st.session_state["all_matches"].copy()
+
+        if "filter_applied" not in st.session_state:
+            st.session_state["filter_applied"] = False
         
         # Display match count
         if not matches:
             st.warning("No matches found for this player")
             st.stop()
             
-        st.success(f"Found {len(matches)} matches!")
+        matches_to_display = st.session_state["filtered_matches"] if st.session_state["filter_applied"] else st.session_state["all_matches"]
+        st.success(f"Found {len(matches_to_display)} matches!" + (" (filtered)" if st.session_state["filter_applied"] else ""))
+        
+        # Simple filtering section
+        st.subheader("Filter Matches")
+        
+        # Get unique values for filters from all_matches
+        all_matches = st.session_state["all_matches"]
+        all_gods = sorted(set(match.get("god_name") for match in all_matches if match.get("god_name")))
+        all_modes = sorted(set(match.get("mode") for match in all_matches if match.get("mode")))
+        
+        # Initialize filter state if not exists
+        if "filter_god" not in st.session_state:
+            st.session_state["filter_god"] = "Any"
+        if "filter_mode" not in st.session_state:
+            st.session_state["filter_mode"] = "Any"
+        if "filter_result" not in st.session_state:
+            st.session_state["filter_result"] = "Any"
+        if "filter_min_kills" not in st.session_state:
+            st.session_state["filter_min_kills"] = 0
+        if "filter_min_kda" not in st.session_state:
+            st.session_state["filter_min_kda"] = 0.0
+        
+        # Define callback functions for filter changes
+        def update_god_filter():
+            st.session_state["filter_god"] = st.session_state["god_selector"]
+        
+        def update_mode_filter():
+            st.session_state["filter_mode"] = st.session_state["mode_selector"]
+        
+        def update_result_filter():
+            st.session_state["filter_result"] = st.session_state["result_selector"]
+        
+        def update_min_kills():
+            st.session_state["filter_min_kills"] = st.session_state["kills_input"]
+        
+        def update_min_kda():
+            st.session_state["filter_min_kda"] = st.session_state["kda_input"]
+        
+        # Create a layout with columns
+        with st.container():
+            st.info("Use the options below to filter match results, then click 'Apply Filters'.")
+            
+            filter_col1, filter_col2 = st.columns(2)
+            
+            with filter_col1:
+                # Basic filters
+                st.selectbox("God/Character", 
+                             options=["Any"] + all_gods, 
+                             index=0 if st.session_state["filter_god"] == "Any" else 1 + all_gods.index(st.session_state["filter_god"]) if st.session_state["filter_god"] in all_gods else 0,
+                             key="god_selector",
+                             on_change=update_god_filter)
+                
+                st.selectbox("Game Mode", 
+                             options=["Any"] + all_modes, 
+                             index=0 if st.session_state["filter_mode"] == "Any" else 1 + all_modes.index(st.session_state["filter_mode"]) if st.session_state["filter_mode"] in all_modes else 0,
+                             key="mode_selector",
+                             on_change=update_mode_filter)
+                
+                st.radio("Result", 
+                         options=["Any", "Wins Only", "Losses Only"], 
+                         index=["Any", "Wins Only", "Losses Only"].index(st.session_state["filter_result"]),
+                         key="result_selector",
+                         on_change=update_result_filter)
+            
+            with filter_col2:
+                # Performance filters
+                st.number_input("Minimum Kills", 
+                               min_value=0, 
+                               value=st.session_state["filter_min_kills"],
+                               key="kills_input",
+                               on_change=update_min_kills)
+                
+                st.number_input("Minimum KDA", 
+                               min_value=0.0, 
+                               value=st.session_state["filter_min_kda"], 
+                               step=0.5,
+                               key="kda_input",
+                               on_change=update_min_kda)
+            
+            # Add buttons for applying and resetting filters
+            col1, col2 = st.columns(2)
+            
+            def apply_filters():
+                # Create filter dictionary
+                filters = {}
+                
+                if st.session_state["filter_god"] != "Any":
+                    filters["god_name"] = st.session_state["filter_god"]
+                
+                if st.session_state["filter_mode"] != "Any":
+                    filters["mode"] = st.session_state["filter_mode"]
+                
+                if st.session_state["filter_result"] == "Wins Only":
+                    filters["win_only"] = True
+                elif st.session_state["filter_result"] == "Losses Only":
+                    filters["win_only"] = False
+                
+                if st.session_state["filter_min_kills"] > 0:
+                    filters["min_kills"] = st.session_state["filter_min_kills"]
+                
+                if st.session_state["filter_min_kda"] > 0:
+                    filters["min_kda"] = st.session_state["filter_min_kda"]
+                
+                # Apply filtering
+                if filters:
+                    if demo_mode:
+                        # Manual filtering for demo mode
+                        filtered_matches = []
+                        for match in st.session_state["all_matches"]:
+                            include = True
+                            
+                            # Filter by god name
+                            if "god_name" in filters and match.get("god_name") != filters["god_name"]:
+                                include = False
+                            
+                            # Filter by game mode
+                            if "mode" in filters and match.get("mode") != filters["mode"]:
+                                include = False
+                            
+                            # Filter by win/loss
+                            if "win_only" in filters:
+                                if filters["win_only"] and match.get("team_id") != match.get("winning_team"):
+                                    include = False
+                                elif filters["win_only"] == False and match.get("team_id") == match.get("winning_team"):
+                                    include = False
+                            
+                            # Filter by performance stats
+                            basic_stats = match.get("basic_stats", {})
+                            
+                            if "min_kills" in filters and basic_stats.get("Kills", 0) < filters["min_kills"]:
+                                include = False
+                            
+                            if "min_kda" in filters:
+                                kills = basic_stats.get("Kills", 0)
+                                deaths = max(basic_stats.get("Deaths", 1), 1)  # Avoid division by zero
+                                assists = basic_stats.get("Assists", 0)
+                                kda = (kills + assists) / deaths
+                                if kda < filters["min_kda"]:
+                                    include = False
+                            
+                            if include:
+                                filtered_matches.append(match)
+                    else:
+                        # Use SDK's filter_matches method
+                        filtered_matches = sdk.filter_matches(st.session_state["all_matches"], filters)
+                
+                # Save filtered matches to session state
+                st.session_state["filtered_matches"] = filtered_matches
+                st.session_state["filter_applied"] = True
+                
+                # Update the display count
+                if len(filtered_matches) == 0:
+                    st.warning("No matches match the filter criteria")
+                else:
+                    st.success(f"Filtered to {len(filtered_matches)} matches using {len(filters)} criteria")
+                
+            def reset_filters():
+                # Reset filter selections
+                st.session_state["filter_god"] = "Any"
+                st.session_state["filter_mode"] = "Any"
+                st.session_state["filter_result"] = "Any"
+                st.session_state["filter_min_kills"] = 0
+                st.session_state["filter_min_kda"] = 0.0
+                
+                # Reset data
+                st.session_state["filtered_matches"] = st.session_state["all_matches"]
+                st.session_state["filter_applied"] = False
+                
+                st.success("Filters reset - showing all matches")
+            
+            with col1:
+                if st.button("Apply Filters"):
+                    apply_filters()
+            
+            with col2:
+                if st.button("Reset Filters"):
+                    reset_filters()
+        
+        # Use filtered matches for display if filters applied
+        matches = st.session_state["filtered_matches"] if st.session_state["filter_applied"] else st.session_state["all_matches"]
+        
+        # Show example code
+        with st.expander("SDK Filter Example"):
+            example_code = f"""
+            from s2match import S2Match
+            
+            # Initialize the SDK
+            sdk = S2Match()
+            
+            # Get match history for a player
+            matches = sdk.get_matches_by_player_uuid(
+                player_uuid="{player_uuid}",
+                max_matches={max_matches}
+            )
+            
+            # Define filter criteria
+            filters = {{
+                "god_name": "{st.session_state['filter_god'] if st.session_state['filter_god'] != 'Any' else 'Anubis'}",
+                "mode": "{st.session_state['filter_mode'] if st.session_state['filter_mode'] != 'Any' else 'Conquest'}",
+                "win_only": {str(st.session_state['filter_result'] == 'Wins Only').lower()},
+                "min_kills": {st.session_state['filter_min_kills'] if st.session_state['filter_min_kills'] > 0 else 5},
+                "min_kda": {st.session_state['filter_min_kda'] if st.session_state['filter_min_kda'] > 0 else 2.0}
+            }}
+            
+            # Apply filters
+            filtered_matches = sdk.filter_matches(matches, filters)
+            
+            print(f"Filtered from {{len(matches)}} to {{len(filtered_matches)}} matches")
+            """
+            
+            st.code(example_code, language="python")
         
         # Performance Overview
         st.subheader("Performance Overview")

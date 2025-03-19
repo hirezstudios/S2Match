@@ -31,6 +31,11 @@ ENABLE_PLAYER_STATS = False
 ENABLE_MATCH_HISTORY = True
 ENABLE_FULL_PLAYER_DATA = True
 ENABLE_MATCH_BY_INSTANCE = False
+ENABLE_EXTRACT_PLAYER_UUIDS = True  # New flag for extract_player_uuids example
+ENABLE_FILTER_MATCHES = True  # New flag for filter_matches example
+ENABLE_PLAYER_PERFORMANCE = True  # New flag for player_performance example
+ENABLE_FLATTEN_PLAYER_LOOKUP = True  # New flag for flatten_player_lookup example
+ENABLE_RATE_LIMIT_HANDLING = True  # New flag for rate_limit_handling example
 
 # Load environment variables from .env file
 load_dotenv()
@@ -232,6 +237,340 @@ def example_match_by_instance():
     
     return match_data
 
+def example_extract_player_uuids():
+    """
+    Demonstrates how to use the extract_player_uuids helper method to
+    quickly retrieve all player UUIDs from a player lookup response.
+    """
+    logger.info(f"Example: Extracting player UUIDs for '{PLAYER_DISPLAY_NAME}'")
+    
+    sdk = S2Match()
+    # First, get the player lookup response
+    player_data = sdk.fetch_player_with_displayname(
+        display_names=[PLAYER_DISPLAY_NAME],
+        platform=PLAYER_PLATFORM,
+        include_linked_portals=True
+    )
+    
+    # Now extract the UUIDs using the helper method
+    player_uuids = sdk.extract_player_uuids(player_data)
+    
+    # Display the results
+    logger.info(f"Found {len(player_uuids)} player UUIDs:")
+    for i, uuid in enumerate(player_uuids, 1):
+        logger.info(f"  UUID {i}: {uuid}")
+    
+    save_json({"player_uuids": player_uuids}, "extract_player_uuids")
+    
+    return player_uuids
+
+def example_filter_matches(player_uuid=None):
+    """
+    Demonstrates how to use the filter_matches helper method to
+    filter match data by various criteria.
+    """
+    logger.info("Example: Filtering match data with various criteria")
+    
+    # If no player UUID is provided, find one with player lookup
+    if not player_uuid:
+        sdk = S2Match()
+        player_data = sdk.fetch_player_with_displayname(
+            display_names=[PLAYER_DISPLAY_NAME],
+            platform=PLAYER_PLATFORM
+        )
+        player_uuids = sdk.extract_player_uuids(player_data)
+        player_uuid = player_uuids[0] if player_uuids else None
+        
+    if not player_uuid:
+        logger.error("Cannot filter matches: No player UUID available")
+        return
+    
+    logger.info(f"Using player UUID: {player_uuid}")
+    
+    # Get match history for the player
+    sdk = S2Match()
+    matches = sdk.get_matches_by_player_uuid(
+        player_uuid=player_uuid,
+        max_matches=MAX_MATCHES
+    )
+    
+    logger.info(f"Retrieved {len(matches)} matches")
+    
+    # Example 1: Filter by god name
+    god_name = None
+    # Find the first god with multiple matches for a better example
+    god_counts = {}
+    for match in matches:
+        god = match.get("god_name")
+        god_counts[god] = god_counts.get(god, 0) + 1
+        
+    # Select a god with at least 2 matches if possible
+    for god, count in god_counts.items():
+        if count >= 2:
+            god_name = god
+            break
+            
+    # Fall back to any god if none has multiple matches
+    if not god_name and matches:
+        god_name = matches[0].get("god_name")
+        
+    if god_name:
+        logger.info(f"Filtering matches by god: {god_name}")
+        filtered = sdk.filter_matches(matches, {"god_name": god_name})
+        logger.info(f"Found {len(filtered)} matches with {god_name}")
+        
+        # Save filtered results
+        save_json(filtered, "filter_matches_by_god")
+    
+    # Example 2: Filter wins only
+    logger.info("Filtering matches by wins only")
+    wins = sdk.filter_matches(matches, {"win_only": True})
+    logger.info(f"Found {len(wins)} winning matches out of {len(matches)}")
+    
+    # Save filtered results
+    save_json(wins, "filter_matches_wins")
+    
+    # Example 3: Filter by performance (KDA)
+    logger.info("Filtering matches by performance (KDA >= 3.0)")
+    high_kda = sdk.filter_matches(matches, {"min_kda": 3.0})
+    logger.info(f"Found {len(high_kda)} matches with KDA >= 3.0")
+    
+    # Save filtered results
+    save_json(high_kda, "filter_matches_high_kda")
+    
+    # Example 4: Combined filters
+    logger.info("Applying combined filters (wins with high KDA)")
+    combined = sdk.filter_matches(matches, {
+        "win_only": True,
+        "min_kda": 3.0
+    })
+    logger.info(f"Found {len(combined)} winning matches with KDA >= 3.0")
+    
+    # Save filtered results
+    save_json(combined, "filter_matches_combined")
+    
+    return matches
+
+def example_player_performance(player_uuid=None):
+    """
+    Demonstrates how to use the calculate_player_performance helper method to
+    generate comprehensive player performance metrics from match history.
+    """
+    logger.info("Example: Calculating player performance metrics")
+    
+    # If no player UUID is provided, find one with player lookup
+    if not player_uuid:
+        sdk = S2Match()
+        player_data = sdk.fetch_player_with_displayname(
+            display_names=[PLAYER_DISPLAY_NAME],
+            platform=PLAYER_PLATFORM
+        )
+        player_uuids = sdk.extract_player_uuids(player_data)
+        player_uuid = player_uuids[0] if player_uuids else None
+        
+    if not player_uuid:
+        logger.error("Cannot calculate performance metrics: No player UUID available")
+        return
+    
+    logger.info(f"Using player UUID: {player_uuid}")
+    
+    # Get match history for the player
+    sdk = S2Match()
+    matches = sdk.get_matches_by_player_uuid(
+        player_uuid=player_uuid,
+        max_matches=MAX_MATCHES
+    )
+    
+    logger.info(f"Retrieved {len(matches)} matches for performance analysis")
+    
+    # Calculate player performance metrics using the helper method
+    performance_stats = sdk.calculate_player_performance(matches)
+    
+    # Display key performance metrics
+    logger.info("\nPlayer Performance Summary:")
+    logger.info(f"Total Matches: {performance_stats.get('total_matches')}")
+    logger.info(f"Win Rate: {performance_stats.get('win_rate', 0):.1%}")
+    logger.info(f"KDA Ratio: {performance_stats.get('avg_kda', 0):.2f} ({performance_stats.get('avg_kills', 0):.1f}/{performance_stats.get('avg_deaths', 0):.1f}/{performance_stats.get('avg_assists', 0):.1f})")
+    logger.info(f"Avg Damage per Match: {performance_stats.get('avg_damage_per_match', 0):,.0f}")
+    logger.info(f"Favorite God: {performance_stats.get('favorite_god', 'Unknown')}")
+    logger.info(f"Favorite Role: {performance_stats.get('favorite_role', 'Unknown')}")
+    
+    # Display god performance stats
+    logger.info("\nPerformance by God:")
+    god_stats = performance_stats.get("god_stats", {})
+    for god, stats in sorted(god_stats.items(), key=lambda x: x[1]["matches"], reverse=True):
+        logger.info(f"  {god}: {stats['matches']} matches, {stats['win_rate']:.1%} win rate, {stats['avg_kda']:.2f} KDA")
+    
+    # Display mode performance stats
+    logger.info("\nPerformance by Game Mode:")
+    mode_stats = performance_stats.get("mode_stats", {})
+    for mode, stats in sorted(mode_stats.items(), key=lambda x: x[1]["matches"], reverse=True):
+        logger.info(f"  {mode}: {stats['matches']} matches, {stats['win_rate']:.1%} win rate")
+    
+    # Save performance stats to a file
+    save_json(performance_stats, "player_performance")
+    
+    return performance_stats
+
+def example_flatten_player_lookup():
+    """
+    Demonstrates how to use the flatten_player_lookup_response helper method to
+    transform the complex nested player lookup response structure into a simple flat list.
+    """
+    logger.info("Example: Flattening player lookup response")
+    
+    # First, get a player lookup response using the API
+    sdk = S2Match()
+    response = sdk.fetch_player_with_displayname(
+        display_names=[PLAYER_DISPLAY_NAME],
+        platform=PLAYER_PLATFORM,
+        include_linked_portals=True
+    )
+    
+    logger.info(f"Fetched player data for '{PLAYER_DISPLAY_NAME}'")
+    
+    # Save the raw response
+    save_json(response, "player_lookup_raw")
+    
+    # Show the nested structure of the raw response
+    logger.info("\nRaw Response Structure:")
+    if "display_names" in response:
+        found_players = 0
+        for display_name_dict in response.get("display_names", []):
+            for name, players in display_name_dict.items():
+                found_players += len(players)
+                logger.info(f"  Found {len(players)} player(s) for name '{name}'")
+                
+        logger.info(f"  Total players in nested structure: {found_players}")
+        
+        # Show a simplified view of the access pattern required
+        logger.info("\nAccess Pattern for Raw Response:")
+        logger.info("  for display_name_dict in response.get('display_names', []):")
+        logger.info("      for name, players in display_name_dict.items():")
+        logger.info("          for player in players:")
+        logger.info("              # Now we can use player data")
+        logger.info("              player_uuid = player.get('player_uuid')")
+    else:
+        logger.info("  No display_names found in response")
+    
+    # Now flatten the response
+    flattened = sdk.flatten_player_lookup_response(response)
+    
+    # Save the flattened response
+    save_json(flattened, "player_lookup_flattened")
+    
+    # Show how much simpler the flattened structure is
+    logger.info("\nFlattened Response Structure:")
+    logger.info(f"  Total players in flattened structure: {len(flattened)}")
+    
+    # Show players in the flattened list
+    for i, player in enumerate(flattened, 1):
+        logger.info(f"  Player {i}:")
+        logger.info(f"    Display Name: {player.get('display_name')}")
+        logger.info(f"    Player UUID: {player.get('player_uuid')}")
+        logger.info(f"    Platform: {player.get('platform')}")
+        
+    # Show the simplified access pattern
+    logger.info("\nSimplified Access Pattern for Flattened Response:")
+    logger.info("  players = sdk.flatten_player_lookup_response(response)")
+    logger.info("  for player in players:")
+    logger.info("      # Directly access player data")
+    logger.info("      player_uuid = player.get('player_uuid')")
+    logger.info("      display_name = player.get('display_name')")
+    
+    return flattened
+
+def example_rate_limit_handling():
+    """
+    Demonstrates the Enhanced Rate Limit Handling feature of the S2Match SDK.
+    
+    This example shows how to configure rate limit parameters and explains how
+    exponential backoff works when encountering rate limits.
+    """
+    print("\n=== Enhanced Rate Limit Handling Example ===")
+    
+    # Initialize the SDK with custom rate limit parameters
+    print("Initializing SDK with custom rate limit parameters...")
+    sdk = S2Match(
+        # Standard configuration parameters omitted for brevity
+        
+        # Rate limit configuration
+        max_retries=5,              # Maximum number of retry attempts (default: 3)
+        base_retry_delay=0.5,       # Initial delay in seconds (default: 1.0)
+        max_retry_delay=30.0        # Maximum delay in seconds (default: 60.0)
+    )
+    
+    print("\nRate Limit Configuration:")
+    print(f"  - max_retries: {sdk.max_retries}")
+    print(f"  - base_retry_delay: {sdk.base_retry_delay} seconds")
+    print(f"  - max_retry_delay: {sdk.max_retry_delay} seconds")
+    
+    print("\nExponential Backoff Logic:")
+    print("The SDK uses exponential backoff with jitter to handle rate limits.")
+    print("Formula: min(base_delay * (2^retry_count), max_delay) ± jitter")
+    
+    print("\nExample Retry Delays:")
+    for retry in range(6):
+        delay = sdk.base_retry_delay * (2 ** retry)
+        delay = min(delay, sdk.max_retry_delay)
+        print(f"  - Retry #{retry+1}: ~{delay:.2f} seconds (before jitter)")
+    
+    print("\nHow it works:")
+    print("1. If an API request receives a 429 (Too Many Requests) response:")
+    print("   - The SDK will automatically wait using exponential backoff")
+    print("   - It respects the Retry-After header if provided by the server")
+    print("   - It will retry up to max_retries times before giving up")
+    print("2. Requests that succeed reset the backoff counter")
+    print("3. The SDK logs retry attempts with appropriate warning messages")
+    
+    print("\nPractical Example:")
+    print("-" * 50)
+    print("The following code demonstrates how rate limit handling works in practice.")
+    print("Since we don't want to actually trigger rate limits on the API, this")
+    print("is just a code example of how you would use the feature.")
+    
+    print("\n```python")
+    print("# 1. Configure SDK with rate limit handling parameters")
+    print("sdk = S2Match(")
+    print("    max_retries=5,")
+    print("    base_retry_delay=0.5,")
+    print("    max_retry_delay=30.0")
+    print(")")
+    
+    print("\n# 2. Make API requests normally - rate limit handling is automatic")
+    print("try:")
+    print("    # These requests will automatically retry if rate limited")
+    print("    player_data = sdk.fetch_player_with_displayname(['PlayerName'])")
+    print("    player_uuids = sdk.extract_player_uuids(player_data)")
+    print("    if player_uuids:")
+    print("        # If these requests hit rate limits, they'll use exponential backoff")
+    print("        matches = sdk.get_matches_by_player_uuid(player_uuids[0])")
+    print("        player_stats = sdk.get_player_stats(player_uuids[0])")
+    print("except requests.exceptions.RequestException as e:")
+    print("    # This exception is only raised if ALL retries failed")
+    print("    print(f'Request failed after multiple retries: {e}')")
+    print("```")
+    
+    print("\nObserving Rate Limit Handling:")
+    print("-" * 50)
+    print("To observe the rate limit handling in action:")
+    print("1. Set the log level to DEBUG or INFO:")
+    print("   ```python")
+    print("   logging.getLogger('S2Match').setLevel(logging.DEBUG)")
+    print("   ```")
+    print("2. Make rapid requests to the API until you hit rate limits")
+    print("3. Watch the logs for messages like:")
+    print("   'Rate limit hit (429), retrying in 1.23 seconds. Attempt 1/5'")
+    print("4. The SDK will automatically handle the retries with increasing delays")
+    
+    print("\nThis makes the SDK more resilient during high-volume requests.")
+    
+    # Advanced Monitoring (for completeness but commented out)
+    # print("\nAdvanced Monitoring (Optional):")
+    # print("You can access the rate limit state directly for monitoring:")
+    # print("  - sdk._consecutive_rate_limits  # Number of consecutive rate limits")
+    # print("  - sdk._last_retry_timestamp     # Timestamp of the last retry")
+
 # ------------------------------------------------------------------------------
 # Main Function
 # ------------------------------------------------------------------------------
@@ -270,6 +609,31 @@ def main():
         # Example 5: Match by instance
         if ENABLE_MATCH_BY_INSTANCE:
             example_match_by_instance()
+            logger.info("-" * 80)
+        
+        # Example 6: Extract player UUIDs
+        if ENABLE_EXTRACT_PLAYER_UUIDS:
+            example_extract_player_uuids()
+            logger.info("-" * 80)
+        
+        # Example 7: Filter matches
+        if ENABLE_FILTER_MATCHES:
+            example_filter_matches(player_uuid)
+            logger.info("-" * 80)
+        
+        # Example 8: Player Performance Aggregation
+        if ENABLE_PLAYER_PERFORMANCE:
+            example_player_performance(player_uuid)
+            logger.info("-" * 80)
+        
+        # Example 9: Flatten Player Lookup Response
+        if ENABLE_FLATTEN_PLAYER_LOOKUP:
+            example_flatten_player_lookup()
+            logger.info("-" * 80)
+        
+        # Example 10: Rate Limit Handling
+        if ENABLE_RATE_LIMIT_HANDLING:
+            example_rate_limit_handling()
             logger.info("-" * 80)
         
     except Exception as e:

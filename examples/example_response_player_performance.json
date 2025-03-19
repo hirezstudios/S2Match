@@ -1,0 +1,131 @@
+{
+  "total_matches": 5,
+  "wins": 3,
+  "losses": 2,
+  "win_rate": 0.6,
+  "avg_kills": 9.2,
+  "avg_deaths": 4.4,
+  "avg_assists": 8.2,
+  "avg_kda": 3.9545454545454546,
+  "total_kills": 46,
+  "total_deaths": 22,
+  "total_assists": 41,
+  "total_damage": 121199,
+  "total_healing": 9772,
+  "total_mitigated": 85506,
+  "total_structure_damage": 4982,
+  "total_minion_damage": 231877,
+  "total_gold_earned": 63954,
+  "total_wards_placed": 10,
+  "avg_damage_per_match": 24239.8,
+  "avg_healing_per_match": 1954.4,
+  "avg_gold_per_match": 12790.8,
+  "avg_wards_per_match": 2.0,
+  "favorite_god": "Anubis",
+  "favorite_role": "ESupport",
+  "favorite_mode": "Conquest",
+  "best_performing_god": "Anubis",
+  "god_stats": {
+    "Anubis": {
+      "matches": 1,
+      "wins": 0,
+      "kills": 7,
+      "deaths": 9,
+      "assists": 11,
+      "damage": 29507,
+      "win_rate": 0.0,
+      "avg_kills": 7.0,
+      "avg_deaths": 9.0,
+      "avg_assists": 11.0,
+      "avg_kda": 2.0,
+      "avg_damage": 29507.0
+    },
+    "UnknownGod": {
+      "matches": 1,
+      "wins": 1,
+      "kills": 0,
+      "deaths": 0,
+      "assists": 0,
+      "damage": 0,
+      "win_rate": 1.0,
+      "avg_kills": 0.0,
+      "avg_deaths": 0.0,
+      "avg_assists": 0.0,
+      "avg_kda": 0.0,
+      "avg_damage": 0.0
+    },
+    "Vulcan": {
+      "matches": 1,
+      "wins": 0,
+      "kills": 6,
+      "deaths": 7,
+      "assists": 5,
+      "damage": 27665,
+      "win_rate": 0.0,
+      "avg_kills": 6.0,
+      "avg_deaths": 7.0,
+      "avg_assists": 5.0,
+      "avg_kda": 1.5714285714285714,
+      "avg_damage": 27665.0
+    },
+    "Bari": {
+      "matches": 1,
+      "wins": 1,
+      "kills": 26,
+      "deaths": 5,
+      "assists": 18,
+      "damage": 54161,
+      "win_rate": 1.0,
+      "avg_kills": 26.0,
+      "avg_deaths": 5.0,
+      "avg_assists": 18.0,
+      "avg_kda": 8.8,
+      "avg_damage": 54161.0
+    },
+    "Anhur": {
+      "matches": 1,
+      "wins": 1,
+      "kills": 7,
+      "deaths": 1,
+      "assists": 7,
+      "damage": 9866,
+      "win_rate": 1.0,
+      "avg_kills": 7.0,
+      "avg_deaths": 1.0,
+      "avg_assists": 7.0,
+      "avg_kda": 14.0,
+      "avg_damage": 9866.0
+    }
+  },
+  "mode_stats": {
+    "Conquest": {
+      "matches": 5,
+      "wins": 3,
+      "kills": 46,
+      "deaths": 22,
+      "assists": 41,
+      "win_rate": 0.6,
+      "avg_kills": 9.2,
+      "avg_deaths": 4.4,
+      "avg_assists": 8.2,
+      "avg_kda": 3.9545454545454546
+    }
+  },
+  "role_stats": {
+    "ESupport": {
+      "matches": 2,
+      "wins": 1,
+      "win_rate": 0.5
+    },
+    "EMiddle": {
+      "matches": 1,
+      "wins": 0,
+      "win_rate": 0.0
+    },
+    "EJungle": {
+      "matches": 1,
+      "wins": 1,
+      "win_rate": 1.0
+    }
+  }
+}

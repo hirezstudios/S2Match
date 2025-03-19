@@ -1,0 +1,37 @@
+{
+  "display_names": [
+    {
+      "Weak3n": [
+        {
+          "player_id": 163,
+          "player_uuid": "e3438d31-c3ee-5377-b645-5a604b0e2b0e",
+          "linked_portals": [
+            {
+              "portal_user_id": "Weak3n",
+              "portal_id": 27,
+              "platform": "LegacyName",
+              "display_name": "Weak3n",
+              "player_id": 7708516,
+              "player_uuid": "460b2d7f-f733-5ced-8b0f-67d6d3966dd6"
+            },
+            {
+              "portal_id": 16,
+              "platform": "Twitch",
+              "display_name": "Weak3n",
+              "player_id": 13382128,
+              "player_uuid": "82cbdff7-bdd0-52d5-9156-4ddb52edc949"
+            },
+            {
+              "portal_user_id": "76561198001985664",
+              "portal_id": 5,
+              "platform": "Steam",
+              "display_name": "Weak3n",
+              "player_id": 163,
+              "player_uuid": "e3438d31-c3ee-5377-b645-5a604b0e2b0e"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

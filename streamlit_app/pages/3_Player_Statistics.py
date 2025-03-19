@@ -58,90 +58,6 @@ def add_log_message(level, message):
     elif level == "DEBUG":
         logger.debug(message)
 
-# Function to calculate extended statistics from match history data
-def calculate_extended_stats(matches):
-    """
-    Calculate detailed player statistics from match history data.
-    
-    Args:
-        matches: List of match data dictionaries
-        
-    Returns:
-        Dict with extended statistics
-    """
-    if not matches:
-        return {}
-    
-    # Initialize stats dictionary
-    extended_stats = {
-        "total_matches": len(matches),
-        "total_wins": 0,
-        "total_losses": 0,
-        "total_kills": 0,
-        "total_deaths": 0,
-        "total_assists": 0,
-        "total_damage_dealt": 0,
-        "total_damage_taken": 0,
-        "total_healing": 0,
-        "total_mitigated": 0,
-        "total_structure_damage": 0,
-        "total_minion_damage": 0,
-        "total_gold_earned": 0,
-        "total_wards_placed": 0,
-        "gods_played": {},
-        "roles_played": {}
-    }
-    
-    # Process each match
-    for match in matches:
-        # Win/Loss
-        if match.get("team_id") == match.get("winning_team"):
-            extended_stats["total_wins"] += 1
-        else:
-            extended_stats["total_losses"] += 1
-        
-        # Process basic stats
-        basic_stats = match.get("basic_stats", {})
-        extended_stats["total_kills"] += basic_stats.get("Kills", 0)
-        extended_stats["total_deaths"] += basic_stats.get("Deaths", 0)
-        extended_stats["total_assists"] += basic_stats.get("Assists", 0)
-        extended_stats["total_damage_dealt"] += basic_stats.get("TotalDamage", 0)
-        extended_stats["total_damage_taken"] += basic_stats.get("TotalDamageTaken", 0)
-        extended_stats["total_healing"] += (basic_stats.get("TotalAllyHealing", 0) + basic_stats.get("TotalSelfHealing", 0))
-        extended_stats["total_mitigated"] += basic_stats.get("TotalDamageMitigated", 0)
-        extended_stats["total_structure_damage"] += basic_stats.get("TotalStructureDamage", 0)
-        extended_stats["total_minion_damage"] += basic_stats.get("TotalMinionDamage", 0)
-        extended_stats["total_gold_earned"] += basic_stats.get("TotalGoldEarned", 0)
-        extended_stats["total_wards_placed"] += basic_stats.get("TotalWardsPlaced", 0)
-        
-        # Track god usage
-        god_name = match.get("god_name", "Unknown")
-        extended_stats["gods_played"][god_name] = extended_stats["gods_played"].get(god_name, 0) + 1
-        
-        # Track role usage
-        played_role = match.get("played_role", "Unknown")
-        if played_role:
-            extended_stats["roles_played"][played_role] = extended_stats["roles_played"].get(played_role, 0) + 1
-    
-    # Calculate derived stats
-    extended_stats["win_rate"] = extended_stats["total_wins"] / max(extended_stats["total_matches"], 1)
-    extended_stats["kda_ratio"] = (extended_stats["total_kills"] + extended_stats["total_assists"]) / max(extended_stats["total_deaths"], 1)
-    
-    # Calculate averages
-    extended_stats["avg_kills_per_match"] = extended_stats["total_kills"] / max(extended_stats["total_matches"], 1)
-    extended_stats["avg_deaths_per_match"] = extended_stats["total_deaths"] / max(extended_stats["total_matches"], 1)
-    extended_stats["avg_assists_per_match"] = extended_stats["total_assists"] / max(extended_stats["total_matches"], 1)
-    extended_stats["avg_damage_per_match"] = extended_stats["total_damage_dealt"] / max(extended_stats["total_matches"], 1)
-    extended_stats["avg_healing_per_match"] = extended_stats["total_healing"] / max(extended_stats["total_matches"], 1)
-    
-    # Find most played god and role
-    if extended_stats["gods_played"]:
-        extended_stats["favorite_god"] = max(extended_stats["gods_played"].items(), key=lambda x: x[1])[0]
-    if extended_stats["roles_played"]:
-        extended_stats["favorite_role"] = max(extended_stats["roles_played"].items(), key=lambda x: x[1])[0]
-    
-    return extended_stats
-
 # Page configuration
 st.set_page_config(
     page_title="Player Statistics - S2Match SDK Companion",
@@ -230,52 +146,34 @@ with st.expander("Code Example", expanded=False):
     # Initialize the SDK
     sdk = S2Match()
     
-    # Get player statistics (limited data from API)
-    player_stats = sdk.get_player_stats(
-        player_uuid="{player_uuid}"
-    )
-    
-    # For more comprehensive statistics, analyze match history
+    # Get player match history
     matches = sdk.get_matches_by_player_uuid(
         player_uuid="{player_uuid}",
         max_matches={max_matches}
     )
     
-    # Calculate statistics from match history
-    extended_stats = {{
-        "total_matches": len(matches),
-        "total_wins": 0,
-        "total_kills": 0,
-        "total_deaths": 0,
-        "total_assists": 0,
-        "gods_played": {{}}
-    }}
+    # Calculate performance metrics using the helper method
+    performance_stats = sdk.calculate_player_performance(matches)
     
-    for match in matches:
-        # Win/Loss
-        if match.get("team_id") == match.get("winning_team"):
-            extended_stats["total_wins"] += 1
-            
-        # Process basic stats
-        basic_stats = match.get("basic_stats", {{}})
-        extended_stats["total_kills"] += basic_stats.get("Kills", 0)
-        extended_stats["total_deaths"] += basic_stats.get("Deaths", 0)
-        extended_stats["total_assists"] += basic_stats.get("Assists", 0)
-        
-        # Track god usage
-        god_name = match.get("god_name", "Unknown")
-        extended_stats["gods_played"][god_name] = extended_stats["gods_played"].get(god_name, 0) + 1
+    # Display overall performance metrics
+    print(f"Total Matches: {{performance_stats['total_matches']}}")
+    print(f"Win Rate: {{performance_stats['win_rate']:.1%}}")
+    print(f"KDA Ratio: {{performance_stats['avg_kda']:.2f}} ({{performance_stats['avg_kills']:.1f}}/{{performance_stats['avg_deaths']:.1f}}/{{performance_stats['avg_assists']:.1f}})")
+    print(f"Favorite God: {{performance_stats.get('favorite_god', 'Unknown')}}")
+    print(f"Favorite Role: {{performance_stats.get('favorite_role', 'Unknown')}}")
     
-    # Calculate derived stats
-    extended_stats["win_rate"] = extended_stats["total_wins"] / max(extended_stats["total_matches"], 1)
-    extended_stats["kda_ratio"] = (extended_stats["total_kills"] + extended_stats["total_assists"]) / max(extended_stats["total_deaths"], 1)
+    # Analyze god performance
+    god_stats = performance_stats.get("god_stats", {{}})
+    for god, stats in sorted(god_stats.items(), key=lambda x: x[1]["matches"], reverse=True):
+        print(f"{{god}}: {{stats['matches']}} matches, {{stats['win_rate']:.1%}} win rate, {{stats['avg_kda']:.2f}} KDA")
     
-    print(f"Win rate: {{extended_stats['win_rate']:.1%}}")
-    print(f"KDA ratio: {{extended_stats['kda_ratio']:.2f}}")
-    print(f"Favorite god: {{max(extended_stats['gods_played'].items(), key=lambda x: x[1])[0]}}")
+    # Analyze mode performance
+    mode_stats = performance_stats.get("mode_stats", {{}})
+    for mode, stats in sorted(mode_stats.items(), key=lambda x: x[1]["matches"], reverse=True):
+        print(f"{{mode}}: {{stats['matches']}} matches, {{stats['win_rate']:.1%}} win rate")
     """
     
-    display_code_example("Comprehensive Player Statistics Analysis", code_example)
+    display_code_example("Player Performance Analysis", code_example)
 
 # Fetch Button
 fetch_button = st.button("Fetch Player Statistics")
@@ -292,13 +190,7 @@ if fetch_button:
             add_log_message("INFO", f"Using demo data for player UUID: {player_uuid}")
             st.info("Using demo data for player statistics")
             
-            # Create mock player stats
-            basic_stats = {
-                "total_matches_played": 50,
-                "total_wins": 30
-            }
-            
-            # Also create mock match history for extended stats
+            # Also create mock match history for performance metrics
             matches = demo_data.get("matches", [])
             # Filter to only include this player's matches
             matches = [m for m in matches if m.get("player_uuid") == player_uuid]
@@ -308,37 +200,33 @@ if fetch_button:
             # Limit to max_matches
             matches = matches[:max_matches]
             
-            # Calculate extended stats from match history
-            extended_stats = calculate_extended_stats(matches)
-            
-            # Merge basic and extended stats
-            player_stats = {**basic_stats, **extended_stats}
+            # Calculate performance metrics using a new instance with a mock S2Match
+            sdk = S2Match()
+            player_stats = sdk.calculate_player_performance(matches)
             
             add_log_message("INFO", f"Generated mock statistics for player {player_uuid}")
             
         else:
             # Real API mode
             try:
-                # First, get basic stats from the API
-                add_log_message("INFO", f"Fetching stats for player UUID: {player_uuid}")
-                basic_stats = sdk.get_player_stats(player_uuid=player_uuid)
-                add_log_message("INFO", "Basic player statistics fetched successfully")
-                
-                # Next, get match history for extended stats
+                # Get match history for player
                 add_log_message("INFO", f"Fetching match history for player UUID: {player_uuid} (max: {max_matches} matches)")
                 matches = sdk.get_matches_by_player_uuid(
                     player_uuid=player_uuid,
                     max_matches=max_matches
                 )
-                add_log_message("INFO", f"Retrieved {len(matches)} matches for extended stats analysis")
+                add_log_message("INFO", f"Retrieved {len(matches)} matches for performance analysis")
                 
-                # Calculate extended stats from match history
-                extended_stats = calculate_extended_stats(matches)
-                
-                # Merge basic and extended stats
-                player_stats = {**basic_stats, **extended_stats}
-                
-                add_log_message("INFO", "Comprehensive player statistics calculated successfully")
+                # If we have matches, calculate performance metrics
+                if matches:
+                    # Calculate performance metrics using the SDK helper method
+                    add_log_message("INFO", "Calculating player performance metrics")
+                    player_stats = sdk.calculate_player_performance(matches)
+                    add_log_message("INFO", "Player performance metrics calculated successfully")
+                else:
+                    # No matches found, create empty stats
+                    add_log_message("WARNING", "No matches found for player, using empty stats")
+                    player_stats = {}
                 
             except Exception as e:
                 error_msg = log_exception(logger, e, f"Error fetching player statistics: {e}")
@@ -361,9 +249,9 @@ if fetch_button:
         st.subheader("Statistics Overview")
         
         # Calculate some derived stats if not provided
-        total_matches = player_stats.get("total_matches", player_stats.get("total_matches_played", 0))
-        total_wins = player_stats.get("total_wins", 0)
-        total_losses = player_stats.get("total_losses", total_matches - total_wins)
+        total_matches = player_stats.get("total_matches", 0)
+        total_wins = player_stats.get("wins", 0)
+        total_losses = player_stats.get("losses", total_matches - total_wins)
         win_rate = player_stats.get("win_rate", total_wins / max(total_matches, 1))
         
         # Display key metrics
@@ -396,26 +284,26 @@ if fetch_button:
             st.metric("Total Assists", player_stats.get("total_assists", 0))
             
         with combat_cols[3]:
-            kda = player_stats.get("kda_ratio", (player_stats.get("total_kills", 0) + player_stats.get("total_assists", 0)) / max(player_stats.get("total_deaths", 1), 1))
+            kda = player_stats.get("avg_kda", 0)
             st.metric("KDA Ratio", f"{kda:.2f}")
         
         # Additional combat metrics
         damage_cols = st.columns(4)
         
         with damage_cols[0]:
-            avg_damage = player_stats.get("avg_damage_per_match", player_stats.get("total_damage_dealt", 0) / max(total_matches, 1))
+            avg_damage = player_stats.get("avg_damage_per_match", 0)
             st.metric("Avg Damage/Match", f"{avg_damage:,.0f}")
             
         with damage_cols[1]:
-            avg_healing = player_stats.get("avg_healing_per_match", player_stats.get("total_healing", 0) / max(total_matches, 1))
+            avg_healing = player_stats.get("avg_healing_per_match", 0)
             st.metric("Avg Healing/Match", f"{avg_healing:,.0f}")
             
         with damage_cols[2]:
-            gold_per_match = player_stats.get("total_gold_earned", 0) / max(total_matches, 1)
+            gold_per_match = player_stats.get("avg_gold_per_match", 0)
             st.metric("Avg Gold/Match", f"{gold_per_match:,.0f}")
             
         with damage_cols[3]:
-            wards_per_match = player_stats.get("total_wards_placed", 0) / max(total_matches, 1)
+            wards_per_match = player_stats.get("avg_wards_per_match", 0)
             st.metric("Avg Wards/Match", f"{wards_per_match:.1f}")
         
         # Create visualization of win/loss
@@ -433,21 +321,21 @@ if fetch_button:
             st.error(f"Error creating win/loss chart: {str(e)}")
         
         # God/Role section if data is available
-        gods_played = player_stats.get("gods_played", {})
-        roles_played = player_stats.get("roles_played", {})
+        god_stats = player_stats.get("god_stats", {})
+        role_stats = player_stats.get("role_stats", {})
         
-        if gods_played or roles_played:
+        if god_stats or role_stats:
             st.subheader("God & Role Performance")
             
             god_role_cols = st.columns(2)
             
             with god_role_cols[0]:
-                if gods_played:
+                if god_stats:
                     st.write("**Gods Played**")
                     # Convert to DataFrame for visualization
                     gods_df = pd.DataFrame([
-                        {"God": god, "Matches": count}
-                        for god, count in gods_played.items()
+                        {"God": god, "Matches": stats["matches"], "Win Rate": stats["win_rate"], "KDA": stats["avg_kda"]}
+                        for god, stats in god_stats.items()
                     ]).sort_values("Matches", ascending=False)
                     
                     # Create bar chart
@@ -457,22 +345,28 @@ if fetch_button:
                             x="God",
                             y="Matches",
                             title="Most Played Gods",
-                            color="Matches",
-                            color_continuous_scale=px.colors.sequential.Blues
+                            color="KDA",
+                            color_continuous_scale=px.colors.sequential.Blues,
+                            hover_data=["Win Rate", "KDA"]
                         )
                         gods_fig.update_layout(xaxis_tickangle=-45)
                         st.plotly_chart(gods_fig, use_container_width=True)
                     except Exception as e:
                         st.error(f"Error creating gods chart: {str(e)}")
-                        st.dataframe(gods_df.head(10))
+                        st.dataframe(
+                            gods_df.head(10).style.format({
+                                "Win Rate": "{:.1%}",
+                                "KDA": "{:.2f}"
+                            })
+                        )
             
             with god_role_cols[1]:
-                if roles_played:
+                if role_stats:
                     st.write("**Roles Played**")
                     # Convert to DataFrame for visualization
                     roles_df = pd.DataFrame([
-                        {"Role": role, "Matches": count}
-                        for role, count in roles_played.items()
+                        {"Role": role, "Matches": stats["matches"], "Win Rate": stats["win_rate"]}
+                        for role, stats in role_stats.items()
                     ]).sort_values("Matches", ascending=False)
                     
                     # Create pie chart
@@ -481,27 +375,92 @@ if fetch_button:
                             roles_df,
                             values="Matches",
                             names="Role",
-                            title="Role Distribution"
+                            title="Role Distribution",
+                            hover_data=["Win Rate"]
                         )
                         st.plotly_chart(roles_fig, use_container_width=True)
                     except Exception as e:
                         st.error(f"Error creating roles chart: {str(e)}")
-                        st.dataframe(roles_df)
+                        st.dataframe(
+                            roles_df.style.format({
+                                "Win Rate": "{:.1%}"
+                            })
+                        )
+        
+        # Display mode performance if available
+        mode_stats = player_stats.get("mode_stats", {})
+        if mode_stats:
+            st.subheader("Game Mode Performance")
+            
+            # Convert to DataFrame for visualization
+            modes_df = pd.DataFrame([
+                {"Mode": mode, "Matches": stats["matches"], "Win Rate": stats["win_rate"], "KDA": stats["avg_kda"]}
+                for mode, stats in mode_stats.items()
+            ]).sort_values("Matches", ascending=False)
+            
+            # Display as a table
+            st.dataframe(
+                modes_df.style.format({
+                    "Win Rate": "{:.1%}",
+                    "KDA": "{:.2f}"
+                }),
+                use_container_width=True
+            )
+            
+            # Create bar chart for mode comparison
+            try:
+                modes_fig = px.bar(
+                    modes_df,
+                    x="Mode",
+                    y="Matches",
+                    color="Win Rate",
+                    title="Performance by Game Mode",
+                    color_continuous_scale=px.colors.sequential.Viridis,
+                    hover_data=["KDA"]
+                )
+                st.plotly_chart(modes_fig, use_container_width=True)
+            except Exception as e:
+                st.error(f"Error creating modes chart: {str(e)}")
+        
+        # Display favorite & best performing sections
+        st.subheader("Favorites & Best Performers")
+        
+        favorites_cols = st.columns(4)
+        
+        with favorites_cols[0]:
+            favorite_god = player_stats.get("favorite_god", "Unknown")
+            st.metric("Favorite God", favorite_god)
+            
+        with favorites_cols[1]:
+            favorite_role = player_stats.get("favorite_role", "Unknown")
+            st.metric("Favorite Role", favorite_role)
+            
+        with favorites_cols[2]:
+            favorite_mode = player_stats.get("favorite_mode", "Unknown")
+            st.metric("Favorite Mode", favorite_mode)
+            
+        with favorites_cols[3]:
+            best_god = player_stats.get("best_performing_god", "Unknown")
+            st.metric("Best Performing God", best_god)
+            
+            # Add tooltip with explanation if best_god exists in god_stats
+            if best_god in god_stats:
+                st.caption(f"KDA: {god_stats[best_god]['avg_kda']:.2f}, Win Rate: {god_stats[best_god]['win_rate']:.1%} (minimum 3 matches)")
         
         # Display all stats
-        st.subheader("All Statistics")
+        st.subheader("All Performance Metrics")
         
-        # Convert stats to DataFrame
+        # Convert stats to DataFrame, excluding nested dictionaries
         stats_df = pd.DataFrame([
-            {"Statistic": key, "Value": value}
+            {"Metric": key, "Value": value}
             for key, value in player_stats.items()
-            if not isinstance(value, dict)  # Skip nested dictionaries
+            if not isinstance(value, dict) and not isinstance(value, list)  # Skip nested structures
         ])
         
         # Format values
         for i, row in stats_df.iterrows():
             value = row["Value"]
-            if isinstance(value, float) and ("rate" in row["Statistic"].lower() or "ratio" in row["Statistic"].lower()):
+            if isinstance(value, float) and ("rate" in row["Metric"].lower() or "ratio" in row["Metric"].lower() or "avg" in row["Metric"].lower()):
                 stats_df.at[i, "Value"] = f"{value:.2f}"
             elif isinstance(value, float):
                 stats_df.at[i, "Value"] = f"{value:.1f}"

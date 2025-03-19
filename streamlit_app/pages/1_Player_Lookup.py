@@ -129,30 +129,28 @@ with st.expander("Code Example", expanded=False):
     # Initialize the SDK
     sdk = S2Match()
     
-    # Look up player by display name
-    player_data = sdk.fetch_player_with_displayname(
+    # Fetch player data
+    response = sdk.fetch_player_with_displayname(
         display_names=["{display_name}"],
         platform={platform_code},
         include_linked_portals={str(include_linked)}
     )
     
-    # Process results
-    display_names = player_data.get("display_names", [])
+    # Option 1: Process raw nested response (complex)
+    display_names = response.get("display_names", [])
     for display_name_dict in display_names:
         for name, players in display_name_dict.items():
             print(f"Results for '{{name}}':")
             for player in players:
                 print(f"  Player UUID: {{player.get('player_uuid')}}")
-                print(f"  Platform: {{player.get('platform')}}")
                 
-                # Access linked portals if included
-                linked_portals = player.get("linked_portals", [])
-                print(f"  Linked portals: {{len(linked_portals)}}")
-                for portal in linked_portals:
-                    print(f"    - {{portal.get('platform')}}: {{portal.get('player_uuid')}}")
+    # Option 2: Use the flatten_player_lookup_response helper (simple)
+    players = sdk.flatten_player_lookup_response(response)
+    for player in players:
+        print(f"{{player.get('display_name')}}: {{player.get('player_uuid')}}")
     """
     
-    display_code_example("Player Lookup", code_example)
+    display_code_example("Player Lookup Example", code_example)
 
 # Search Results Section
 if search_button:
@@ -441,15 +439,8 @@ if search_button:
                 """)
                 
                 extraction_code = """
-                # Process response data
-                player_uuids = []
-                display_names = player_data.get("display_names", [])
-                for display_name_dict in display_names:
-                    for name, players in display_name_dict.items():
-                        for player in players:
-                            player_uuid = player.get("player_uuid")
-                            if player_uuid:
-                                player_uuids.append(player_uuid)
+                # Using the new extract_player_uuids helper method
+                player_uuids = sdk.extract_player_uuids(player_data)
                                 
                 # Now player_uuids contains all player UUIDs found
                 print(f"Found {len(player_uuids)} player UUIDs: {player_uuids}")
@@ -469,6 +460,26 @@ if search_button:
                 """
                 
                 st.code(extraction_code, language="python")
+                
+                st.markdown("""
+                ### Traditional Way (Without Helper)
+                
+                For reference, here's how you would extract UUIDs without the helper method:
+                """)
+                
+                manual_code = """
+                # Manual extraction process
+                player_uuids = []
+                display_names = player_data.get("display_names", [])
+                for display_name_dict in display_names:
+                    for name, players in display_name_dict.items():
+                        for player in players:
+                            player_uuid = player.get("player_uuid")
+                            if player_uuid:
+                                player_uuids.append(player_uuid)
+                """
+                
+                st.code(manual_code, language="python")
                 
                 st.markdown("""
                 ### Working with Linked Portals
@@ -496,6 +507,206 @@ if search_button:
                 """
                 
                 st.code(linked_code, language="python")
+
+# Add a "View Options" section right after searching but before displaying results
+if search_button and player_data:
+    # View options
+    st.subheader("View Options")
+    view_format = st.radio(
+        "Display Format",
+        options=["Raw API Response", "Flattened Response (Simplified)"],
+        horizontal=True
+    )
+    
+    # Create flattened version of the data for simplified view
+    if view_format == "Flattened Response (Simplified)":
+        # Use the SDK helper method to flatten the response
+        try:
+            flattened_players = sdk.flatten_player_lookup_response(player_data)
+            st.success(f"Flattened response contains {len(flattened_players)} player records")
+            
+            # Display flattened player data
+            st.subheader("Flattened Players")
+            
+            # Create a formatted table of players
+            if flattened_players:
+                # Convert players to DataFrame for display
+                players_df = []
+                for player in flattened_players:
+                    players_df.append({
+                        "Display Name": player.get("display_name", "Unknown"),
+                        "Player UUID": player.get("player_uuid", "Unknown"),
+                        "Platform": player.get("platform", "Unknown"),
+                        "Player ID": player.get("player_id", "Unknown"),
+                        "Linked Accounts": len(player.get("linked_portals", [])),
+                    })
+                
+                # Display as DataFrame
+                import pandas as pd
+                st.dataframe(pd.DataFrame(players_df))
+                
+                # Allow selection of a player for other pages
+                st.subheader("Select a Player")
+                
+                # Create buttons for each player
+                for i, player in enumerate(flattened_players):
+                    display_name = player.get("display_name", "Unknown")
+                    player_uuid = player.get("player_uuid", "Unknown")
+                    platform = player.get("platform", "Unknown")
+                    
+                    selection_text = f"{display_name} ({platform}) - {player_uuid[:8]}..."
+                    if st.button(f"Select {selection_text}", key=f"select_flat_{i}"):
+                        st.session_state["selected_player"] = player
+                        st.session_state["selected_player_name"] = display_name
+                        st.success(f"Selected {display_name} for use in other pages")
+                
+                # Option to view raw data
+                with st.expander("View Full Player Data", expanded=False):
+                    st.json(flattened_players)
+            else:
+                st.warning("No players found in the flattened response")
+        except Exception as e:
+            add_log_message("ERROR", f"Error flattening player data: {str(e)}")
+            st.error(f"Error processing flattened view: {str(e)}")
+            # Fall back to raw view
+            view_format = "Raw API Response"
+    
+    # Display raw API response format (original view)
+    if view_format == "Raw API Response":
+        # Original display code for raw API response 
+        st.subheader("Player Data")
+        
+        display_names = player_data.get("display_names", [])
+        
+        if display_names:
+            for display_name_dict in display_names:
+                for display_name, players in display_name_dict.items():
+                    st.write(f"### Results for '{display_name}'")
+                    
+                    for i, player in enumerate(players):
+                        with st.container():
+                            col1, col2 = st.columns([1, 1])
+                            
+                            with col1:
+                                st.write(f"**Player {i+1}:**")
+                                st.write(f"Player UUID: `{player.get('player_uuid', 'Unknown')}`")
+                                st.write(f"Platform: {player.get('platform', 'Unknown')}")
+                                st.write(f"Player ID: {player.get('player_id', 'Unknown')}")
+                            
+                            with col2:
+                                # Add a button to select this player for other pages
+                                if st.button(f"Select {display_name}", key=f"select_{i}"):
+                                    st.session_state["selected_player"] = player
+                                    st.session_state["selected_player_name"] = display_name
+                                    st.success(f"Selected {display_name} for use in other pages")
+                                
+                                # Check if linked_portals exists and display count
+                                linked_portals = player.get("linked_portals", [])
+                                if linked_portals:
+                                    st.write(f"Linked accounts: {len(linked_portals)}")
+                                    
+                                    # Expand to see linked accounts
+                                    with st.expander("View Linked Accounts", expanded=False):
+                                        for j, portal in enumerate(linked_portals):
+                                            st.write(f"**Linked Account {j+1}**")
+                                            st.write(f"Platform: {portal.get('platform', 'Unknown')}")
+                                            st.write(f"UUID: `{portal.get('player_uuid', 'Unknown')}`")
+                                            
+                        st.markdown("---")
+                        
+            # Using the new extract_player_uuids helper method
+            player_uuids = sdk.extract_player_uuids(player_data)
+            
+            with st.expander("All Player UUIDs", expanded=False):
+                st.write(f"**Total UUIDs found: {len(player_uuids)}**")
+                for i, uuid in enumerate(player_uuids):
+                    st.code(uuid, language="text")
+                    
+            # Display raw JSON data if requested
+            with st.expander("Raw JSON Response", expanded=False):
+                st.json(player_data)
+        else:
+            st.warning(f"No players found with the name '{display_name}' on {platform}")
+
+        # Show example code for reference
+        st.subheader("Usage Instructions")
+        st.write("""
+        1. Use the search form above to find players by display name
+        2. Click the "Select" button next to a player to use that player in other pages
+        3. View linked accounts for each player by expanding the section
+        4. Switch to Flattened View for a simplified representation
+        """)
+
+# Add more information about the flattened structure in a new "Understanding Response Formats" section
+with st.expander("Understanding Response Formats", expanded=False):
+    st.write("""
+    ### Raw vs. Flattened Response Structure
+    
+    The player lookup endpoint returns data in a deeply nested structure that can be difficult to work with:
+    
+    ```python
+    {
+        "display_names": [
+            {
+                "PlayerName": [
+                    {
+                        "player_uuid": "uuid_string",
+                        "player_id": 12345,
+                        "platform": "Steam",
+                        "linked_portals": [...]
+                    }
+                ]
+            }
+        ]
+    }
+    ```
+    
+    The `flatten_player_lookup_response` helper method transforms this into a much simpler flat list:
+    
+    ```python
+    [
+        {
+            "display_name": "PlayerName",
+            "player_uuid": "uuid_string",
+            "player_id": 12345,
+            "platform": "Steam",
+            "linked_portals": [...]
+        }
+    ]
+    ```
+    
+    This makes it much easier to:
+    - Iterate through players with a simple loop
+    - Filter and sort player data
+    - Display player information in tables or UI components
+    """)
+    
+    # Show before/after code comparison
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.write("**Without Helper (Complex)**")
+        st.code("""
+# Complex nested loops
+for display_name_dict in response.get("display_names", []):
+    for name, players in display_name_dict.items():
+        for player in players:
+            # Now we can use the player data
+            player_uuid = player.get("player_uuid")
+            # ...more processing...
+        """, language="python")
+    
+    with col2:
+        st.write("**With Helper (Simple)**")
+        st.code("""
+# Simple iteration
+players = sdk.flatten_player_lookup_response(response)
+for player in players:
+    # Directly access player data
+    player_uuid = player.get("player_uuid")
+    name = player.get("display_name")
+    # ...more processing...
+        """, language="python")
 
 # Footer with page navigation
 st.markdown("---")

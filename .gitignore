@@ -20,6 +20,7 @@ lib64/
 parts/
 sdist/
 var/
+wheels/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -41,6 +42,7 @@ coverage.xml
 .vscode/
 *.swp
 *.swo
+*~
 
 # OS specific
 .DS_Store
@@ -53,3 +55,24 @@ Thumbs.db
 
 # Project specific
 examples/example_response_*.json streamlit_app/logs/
+
+# Environment
+.venv
+venv/
+ENV/
+
+# Streamlit
+streamlit_app/logs/
+*.log
+
+# Cursor
+.cursor/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Custom files
+github_update.md
+temp/
+scratch/

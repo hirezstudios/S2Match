@@ -1,0 +1,230 @@
+[
+  {
+    "player_uuid": "e3438d31-c3ee-5377-b645-5a604b0e2b0e",
+    "team_id": "2",
+    "placement": 2,
+    "joined_match_timestamp": "2025-03-19T00:10:37.890000Z",
+    "left_match_timestamp": "2025-03-19T00:51:48.830000Z",
+    "duration_seconds": 2470,
+    "god_name": "Anubis",
+    "basic_stats": {
+      "Kills": 7,
+      "Deaths": 9,
+      "Assists": 11,
+      "TowerKills": 0,
+      "PhoenixKills": 0,
+      "TitanKills": 0,
+      "TotalDamage": 29507,
+      "TotalNPCDamage": 55446,
+      "TotalDamageTaken": 57715,
+      "TotalDamageMitigated": 54175,
+      "TotalGoldEarned": 18819,
+      "TotalXPEarned": 23408,
+      "TotalStructureDamage": 0,
+      "TotalMinionDamage": 57732,
+      "TotalAllyHealing": 0,
+      "TotalSelfHealing": 804,
+      "TotalWardsPlaced": 0,
+      "PlayerLevel": 20
+    },
+    "assigned_role": "ESupport",
+    "played_role": "ESupport",
+    "items": {
+      "Inventory.Slot.EquipPoint.Starter.1": {
+        "Item_Id": "00000000000000000000000000000796",
+        "Legacy_Id": "1942",
+        "DisplayName": "Heroism",
+        "Description": "Passive: You gain 1 bonus Gold per second. When an ally god within 8.8m of you is hit by a hard crowd control effect, give them a shield equal to 15% of your Maximum Health. This effect can only occur once every 15s. Requires Level 15.",
+        "Stats": [
+          {
+            "TagName": "Character.Stat.PhysicalProtection",
+            "Value": 30.0
+          },
+          {
+            "TagName": "Character.Stat.MagicalProtection",
+            "Value": 30.0
+          },
+          {
+            "TagName": "Character.Stat.MaxHealth",
+            "Value": 200.0
+          }
+        ]
+      },
+      "Inventory.Slot.EquipPoint.Relic.1": {
+        "Item_Id": "00000000000000000000000000000766",
+        "Legacy_Id": "1894",
+        "DisplayName": "Blink Rune",
+        "Description": "Active: You are Teleported to a targeted location up to 5.6m away. This effect can be used during combat or while firing another ability. Cooldown: 240s",
+        "Stats": []
+      },
+      "Inventory.Slot.EquipPoint.Items.1": {
+        "Item_Id": "0000000000000000000000000000080C",
+        "Legacy_Id": "2060",
+        "DisplayName": "Lifebinder",
+        "Description": "Active: Send out a wave of living energy dealing 125 + 5 per level magic damage and marking enemy Gods for 6 seconds. The first Ally who damages a marked target will gain a shield and heal for 130 + 5 per level and consume the Mark. Kills and Assists will reduce the current cooldown by 20%. Cooldown 15s.",
+        "Stats": [
+          {
+            "TagName": "Character.Stat.MagicalPower",
+            "Value": 35.0
+          },
+          {
+            "TagName": "Character.Stat.MaxHealth",
+            "Value": 350.0
+          },
+          {
+            "TagName": "Character.Stat.HealthPerTime",
+            "Value": 3.0
+          }
+        ]
+      },
+      "Inventory.Slot.EquipPoint.Items.2": {
+        "Item_Id": "000000000000000000000000000000A4",
+        "Legacy_Id": "164",
+        "DisplayName": "Gem of Isolation",
+        "Description": "Passive: Enemy gods hit by your abilities are affected by a 15% Slow for 2s.",
+        "Stats": [
+          {
+            "TagName": "Character.Stat.MagicalPower",
+            "Value": 50.0
+          },
+          {
+            "TagName": "Character.Stat.MaxHealth",
+            "Value": 350.0
+          }
+        ]
+      },
+      "Inventory.Slot.EquipPoint.Items.3": {
+        "Item_Id": "00000000000000000000000000000781",
+        "Legacy_Id": "1921",
+        "DisplayName": "Void Stone",
+        "Description": "Passive: Enemies within 8.8m have their Magical Protections reduced by 15%",
+        "Stats": [
+          {
+            "TagName": "Character.Stat.MagicalPower",
+            "Value": 40.0
+          },
+          {
+            "TagName": "Character.Stat.MagicalProtection",
+            "Value": 45.0
+          },
+          {
+            "TagName": "Character.Stat.MaxHealth",
+            "Value": 150.0
+          }
+        ]
+      },
+      "Inventory.Slot.EquipPoint.Items.4": {
+        "Item_Id": "00000000000000000000000000000092",
+        "Legacy_Id": "146",
+        "DisplayName": "Stone of Binding",
+        "Description": "Passive: Enemy gods hit by your Hard CC effects lose 15 Physical Protection and 15 Magical Protection for 4s.",
+        "Stats": [
+          {
+            "TagName": "Character.Stat.PhysicalProtection",
+            "Value": 40.0
+          },
+          {
+            "TagName": "Character.Stat.MagicalProtection",
+            "Value": 30.0
+          }
+        ]
+      },
+      "Inventory.Slot.EquipPoint.Items.5": {
+        "Item_Id": "000000000000000000000000000000E2",
+        "Legacy_Id": "226",
+        "DisplayName": "Totem of Death",
+        "Description": "Passive: When you hit an enemy god or jungle boss with an ability, gain the Piercing effect, granting you 7.5% Penetration for 4s. Stacks up to 4 times.",
+        "Stats": [
+          {
+            "TagName": "Character.Stat.MagicalPower",
+            "Value": 40.0
+          },
+          {
+            "TagName": "Character.Stat.CooldownReductionPercent",
+            "Value": 15.0
+          }
+        ]
+      },
+      "Inventory.Slot.EquipPoint.Items.6": {
+        "Item_Id": "00000000000000000000000000000FD3",
+        "DisplayName": "<display name missing>"
+      }
+    },
+    "role_preferences": {
+      "EJungle": "1",
+      "EMiddle": "2",
+      "ECarry": "3",
+      "ESupport": "4",
+      "ESolo": "5",
+      "Role Fill": "False"
+    },
+    "damage_breakdown": {
+      "misc_stats": {
+        "Kills": 7,
+        "Deaths": 9,
+        "Assists": 11,
+        "TowerKills": 0,
+        "PhoenixKills": 0,
+        "TitanKills": 0,
+        "TotalDamage": 29507,
+        "TotalNPCDamage": 55446,
+        "TotalDamageTaken": 57715,
+        "TotalDamageMitigated": 54175,
+        "TotalGoldEarned": 18819,
+        "TotalXPEarned": 23408,
+        "TotalStructureDamage": 0,
+        "TotalMinionDamage": 57732,
+        "TotalAllyHealing": 0,
+        "TotalSelfHealing": 804,
+        "TotalWardsPlaced": 0,
+        "PlayerLevel": 20,
+        "JungleCampKillXP": 4628,
+        "JungleCampKillGold": 1252,
+        "JungleCampAssistXP": 1831,
+        "JungleCampAssistGold": 700,
+        "MinionAssistXP": 6625,
+        "MinionAssistGold": 1695,
+        "MinionKillXP": 2664,
+        "MinionKillGold": 586,
+        "MinionLowestLevelXP": 1518,
+        "PlayerKillXP": 2218,
+        "PlayerKillGold": 1732,
+        "PlayerAssistXP": 2447,
+        "PlayerAssistGold": 1465,
+        "Gold Blessing": 30,
+        "Tower Bounty": 30,
+        "JungleCampLowestLevelXP": 565
+      },
+      "Anubis": {
+        "InhandNPCDamage": 9049,
+        "A01NPCDamage": 26420,
+        "A03.Attack.Deployable.DamageTickNPCDamage": 18636,
+        "A01Damage": 10791,
+        "InhandDamage": 814,
+        "A02Damage": 2520,
+        "A03.Attack.Deployable.DamageTickDamage": 5849,
+        "A04Damage": 6886,
+        "InhandMinionDamage": 6894,
+        "A01MinionDamage": 25657,
+        "A03.Attack.Deployable.DamageTickMinionDamage": 21236,
+        "A04MinionDamage": 1676
+      },
+      "LifeBinderNPCDamage": {
+        "value": 1339
+      },
+      "LifeBinderDamage": {
+        "value": 2645
+      },
+      "LifeBinderMinionDamage": {
+        "value": 2267
+      }
+    },
+    "match_id": "ABD5481B-FF4B-4747-B8F7-2CECCEA5334A",
+    "match_start": "2025-03-19T00:10:24.727000Z",
+    "match_end": "2025-03-19T00:55:02.950000Z",
+    "map": "L_CQ_F2P_P",
+    "mode": "Conquest",
+    "lobby_type": "Casual",
+    "winning_team": "1"
+  }
+]

@@ -1,108 +1,80 @@
-# SMITE 2 Match Data SDK Project Checklist
+# SMITE 2 Match Data SDK - Project Checklist
 
-## Setup and Testing
-- [x] Run basic example script to confirm SDK works
-- [x] Verify environment variables are properly configured
-- [x] Confirm API credentials are working
-- [x] Check that match data is being retrieved successfully
+## SDK Improvements Implementation
+
+### Extract Player UUIDs Helper
+- [x] Implement `extract_player_uuids()` method in S2Match class
+- [x] Add unit tests for the method
+- [x] Update examples script to demonstrate usage
+- [x] Run tests to verify functionality
+- [x] Update Streamlit app to use the new helper
+- [x] Update documentation in agent_notes.md
+- [x] Update README.md with method documentation and examples
+
+### Match Filtering Helper
+- [x] Implement `filter_matches()` method in S2Match class
+- [x] Add unit tests for the method
+- [x] Update examples script to demonstrate usage
+- [x] Run tests to verify functionality
+- [x] Update Streamlit app to use the new helper
+- [x] Update documentation in agent_notes.md
+- [x] Update README.md with method documentation and examples
+
+### Player Performance Aggregation Helper
+- [x] Implement `calculate_player_performance()` method in S2Match class
+- [x] Add unit tests for the method
+- [x] Update examples script to demonstrate usage
+- [x] Run tests to verify functionality
+- [x] Update Streamlit app to use the new helper
+- [x] Update documentation in agent_notes.md
+- [x] Update README.md with method documentation and examples
+
+### Flattened Player Lookup Response Helper
+- [x] Implement `flatten_player_lookup_response()` method in S2Match class
+- [x] Add unit tests for the method
+- [x] Update examples script to demonstrate usage
+- [x] Run tests to verify functionality
+- [x] Update Streamlit app to use the new helper
+- [x] Update documentation in agent_notes.md
+- [x] Update README.md with method documentation and examples
+
+### Enhanced Rate Limit Handling
+- [x] Add configuration parameters for rate limiting (max_retries, backoff values)
+- [x] Implement exponential backoff logic with jitter
+- [x] Create a request wrapper method with retry logic
+- [x] Add proper handling of Retry-After headers
+- [x] Update API request methods to use the new wrapper
+- [x] Add comprehensive unit tests for the rate limit handling
+- [x] Update examples script to demonstrate the feature
+- [x] Update Streamlit app with rate limit configuration options
+- [x] Add visualization for backoff strategy in Streamlit
+- [x] Update documentation in agent_notes.md
+- [x] Update README.md with feature documentation
+
+## General Tasks
+
+- [x] Set up unit testing framework
+- [x] Create test runner script
+- [ ] Expand test coverage for existing functionality
+- [ ] Review and improve error handling
+- [ ] Optimize performance for high-volume requests
 
 ## Documentation
-- [x] Review code docstrings for clarity and completeness
-- [x] Examine examples and ensure they demonstrate key functionality
-- [x] Confirm README covers installation and setup
-- [x] Document API endpoints used by the SDK
 
-## Features and Improvements
-- [ ] Consider additional helper methods for common use cases
-  - [ ] Extract Player UUIDs helper method
-  - [ ] Match filtering utility
-  - [ ] Player performance aggregation functions
-  - [ ] Flattened player lookup response helper
-- [ ] Improve error handling
-  - [ ] Enhanced rate limit handling with exponential backoff
-  - [ ] Input parameter validation
-- [ ] Evaluate performance optimization opportunities
-  - [ ] Async versions of API methods
-  - [ ] Batch processing for multiple player lookup
-  - [ ] Selective field retrieval
-- [ ] Consider adding unit tests for all SDK methods
-- [ ] Explore integration with other tools/frameworks
+- [x] Update agent_notes.md with current status
+- [x] Create project_checklist.md
+- [x] Update SDK documentation with new methods
+- [x] Add usage examples for all new methods
 
-## SDK Advanced Features
-- [ ] Data export utilities (CSV, JSON)
-- [ ] Enhanced documentation with visual diagrams
-- [ ] More comprehensive error handling with specific error classes
-- [ ] Method for retrieving god/character metadata
-- [ ] Support for tournament/competitive match data
-- [ ] Progress callbacks for multi-call operations
+## Next Improvement to Implement
 
-## Testing
-- [ ] Develop comprehensive test suite
-- [ ] Set up automated testing framework
-- [ ] Test edge cases and error handling
-- [ ] Verify rate limiting functionality
+- [ ] Enhanced Rate Limit Handling
+  - [ ] Review proposed implementation in sdk_improvements.md
+  - [ ] Design test cases for the method
+  - [ ] Implement and test the method
+  - [ ] Update documentation 
 
-## Deployment
-- [ ] Package the SDK for distribution
-- [ ] Publish to appropriate repositories (if applicable)
-- [x] Create examples for end users
-
-## Streamlit Companion App
-- [x] Define specifications and requirements
-- [x] Set up basic project structure
-- [x] Implement authentication and configuration
-- [x] Create navigation system and page layout
-- [x] Develop player lookup section
-  - [x] Search form with platform selection
-  - [x] Player profile display
-  - [x] Linked accounts visualization
-  - [x] Code examples
-  - [x] Raw JSON viewer
-- [x] Develop match history section
-  - [x] Match filtering options
-  - [x] Match summary cards
-  - [x] Detailed match view
-  - [x] Performance visualizations
-  - [x] Item build visualization
-  - [x] Code examples
-  - [x] Raw JSON viewer
-- [x] Develop player statistics section
-  - [x] Performance dashboard
-  - [x] Game mode statistics
-  - [x] Performance trends
-  - [x] God-specific metrics
-  - [x] Code examples
-  - [x] Raw JSON viewer
-- [x] Implement full player data explorer
-  - [x] Combined data view
-  - [x] Relationship diagram
-  - [x] Filtering capabilities
-  - [x] Code examples
-  - [x] Raw JSON viewer
-- [x] Create API explorer page
-  - [x] Method selection interface
-  - [x] Parameter input forms
-  - [x] Response display
-  - [x] Performance metrics
-- [ ] Add export functionality
-  - [x] JSON export
-  - [ ] CSV/Excel export
-  - [ ] Visualization download
-  - [x] Code snippet generation
-- [ ] Create testing framework
-  - [ ] Unit tests for components
-  - [ ] Integration tests
-  - [x] Mock data for offline testing
-- [x] Implement caching and performance optimizations
-- [x] Add documentation and tooltips throughout app
-- [x] Finalize styling and UI improvements
-- [x] Create deployment instructions
-
-## Next Steps
-- [ ] Add more comprehensive test coverage for SDK methods
-- [ ] Enhance the Streamlit app with more visualization options
-- [ ] Implement the SDK improvements documented in sdk_improvements.md
-- [ ] Document potential SDK improvements for future releases
-- [ ] Consider public deployment of the Streamlit app for demonstration purposes
-- [ ] Add data export features to the Streamlit app
-- [ ] Implement feedback collection mechanism in the Streamlit app 
+## Future Improvements
+- [ ] Data Visualization Helper
+- [ ] Match Timeline Helper
+- [ ] Player Rank Tracking Helper 
