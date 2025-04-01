@@ -43,6 +43,7 @@ coverage.xml
 *.swp
 *.swo
 *~
+.run/
 
 # OS specific
 .DS_Store

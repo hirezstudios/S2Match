@@ -58,11 +58,11 @@ S2Match provides a streamlined interface for retrieving and transforming SMITE 2
 - **Enhanced rate limit handling with exponential backoff**
 - **Response caching to reduce API calls**
 
-## Installation
+## SDK Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/YourOrg/S2Match.git
+git clone https://github.com/HiRezStudios/S2Match.git
 cd S2Match
 
 # Install dependencies

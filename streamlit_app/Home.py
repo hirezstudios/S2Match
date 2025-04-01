@@ -49,6 +49,11 @@ if "sdk_initialized" not in st.session_state:
     st.session_state.sdk_instance = None
     st.session_state.demo_data = load_demo_data()
     st.session_state.log_messages = []
+    st.session_state.selected_player_name = "RoyaleWithCheeseA"    
+    st.session_state.selected_player_uuid = "e3438d31-c3ee-5377-b645-5a604b0e2b0e"
+    st.session_state.player_lookup_response_format = "Raw API Response"
+    st.session_state.response_formats = ["Raw API Response", "Flattened Response (Simplified)"]
+    #st.session_state.active_response_format = st.session_state.response_formats[1]
     logger.info("Session state initialized")
 
 # Function to add log message to session state
@@ -126,6 +131,8 @@ with st.sidebar:
             os.environ["CLIENT_SECRET"] = client_secret
             os.environ["RH_BASE_URL"] = base_url
             os.environ["LOG_LEVEL"] = log_level
+            
+            #import pdb; pdb.set_trace()  # Debugger will break here
             
             with st.spinner("Initializing SDK..."):
                 # Initialize SDK instance
