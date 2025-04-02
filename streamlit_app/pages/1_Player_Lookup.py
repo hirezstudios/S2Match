@@ -117,8 +117,11 @@ with col2:
     
     include_linked = st.checkbox("Include Linked Accounts", value=True)
 
+search_button = st.button("Search Players")
+
 # Display Code Example
 with st.expander("Code Example", expanded=False):
+    include_linked = True
     platform_code = f'"{platform}"' if platform != "Any" else "None"
     code_example = f"""
     from s2match import S2Match
@@ -148,8 +151,6 @@ with st.expander("Code Example", expanded=False):
     """
     
     display_code_example("Player Lookup Example", code_example)
-
-search_button = st.button("Search Players")
 
 st.markdown("---")
 
@@ -242,17 +243,12 @@ if search_button:
             logger.info(f"Found {total_players} players matching '{display_name}'")
             add_log_message("INFO", f"Found {total_players} players matching '{display_name}'")
             
-            st.success(f"Found {total_players} player{'s'[:total_players^1]}!")
             
 
 # Add a "View Options" section right after searching but before displaying results
 if "player_data" in st.session_state:
-    st.session_state["active_response_format"] = st.radio(
-        "Response Format",
-        options=st.session_state.response_formats,
-        horizontal=True            
-    )
-
+    
+    
     # Show examples of how to use the returned data
     with st.expander("Using the Response Data", expanded=False):
         st.markdown("""
@@ -400,18 +396,18 @@ for player in players:
     # ...more processing...
             """, language="python")
 
-    player_data = st.session_state["player_data"]
-    view_format = st.session_state.active_response_format
+    player_data = st.session_state["player_data"]        
+
+    tab1, tab2 = st.tabs(["Flattened Response (Simplified)", "Raw API Response"])
     
     # Create flattened version of the data for simplified view
-    if view_format == "Flattened Response (Simplified)":
+    with tab1:
         # Use the SDK helper method to flatten the response
         try:
             flattened_players = sdk.flatten_player_lookup_response(player_data)
-            #st.success(f"Flattened response contains {len(flattened_players)} player records")
-            
-            # Display flattened player data
-            st.subheader("Flattened Players")
+            # Option to view raw data
+            with st.expander("View JSON", expanded=False):
+                st.json(flattened_players)
             
             # Create a formatted table of players
             if flattened_players:
@@ -443,23 +439,19 @@ for player in players:
                     if st.button(f"Select {selection_text}", key=f"select_flat_{i}"):
                         st.session_state["selected_player"] = player
                         st.session_state["selected_player_name"] = display_name
-                        st.success(f"Selected {display_name} for use in other pages")
-                
-                # Option to view raw data
-                with st.expander("View Full Player Data", expanded=False):
-                    st.json(flattened_players)
+                        st.success(f"Selected {display_name} for use in other pages")                
             else:
                 st.warning("No players found in the flattened response")
         except Exception as e:
             add_log_message("ERROR", f"Error flattening player data: {str(e)}")
             st.error(f"Error processing flattened view: {str(e)}")
             # Fall back to raw view
-            view_format = "Raw API Response"
+
     
-    # Display raw API response format (original view)
-    if view_format == "Raw API Response":
-        # Original display code for raw API response 
-        #st.subheader("Player Data")
+    with tab2:
+        # Display raw JSON data if requested
+        with st.expander("View JSON", expanded=False):
+            st.json(player_data)
         
         display_names = player_data.get("display_names", [])
         
@@ -500,25 +492,15 @@ for player in players:
                         st.markdown("---")
                         
             # Using the new extract_player_uuids helper method
-            player_uuids = sdk.extract_player_uuids(player_data)
-            
-
-            # Display raw JSON data if requested
-            with st.expander("Raw JSON Response", expanded=False):
-                st.json(player_data)
+            player_uuids = sdk.extract_player_uuids(player_data)            
         else:
             st.warning(f"No players found with the name '{display_name}' on {platform}")
-
-# Display full response
-        with st.expander("Full Response Data", expanded=False):
-                # Use display_json with use_expander=False since we're already in an expander
-                display_json(player_data, title="API Response", use_expander=False)
-
-# Footer with page navigation
-st.markdown("---")
-next_page = st.button("Next: Match History")
-if next_page:
-    add_log_message("INFO", "Navigating to Match History page")
-    import streamlit as st
-    st.switch_page("pages/2_Match_History.py") 
+     
+    # Footer with page navigation
+    st.markdown("---")
+    next_page = st.button("Next: Match History")
+    if next_page:
+        add_log_message("INFO", "Navigating to Match History page")
+        import streamlit as st
+        st.switch_page("pages/2_Match_History.py") 
 
