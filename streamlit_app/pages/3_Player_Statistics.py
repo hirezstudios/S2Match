@@ -219,6 +219,41 @@ if fetch_button:
                 
                 # If we have matches, calculate performance metrics
                 if matches:
+                    # Calculate some aggregate stats
+                    total_matches = len(matches)
+                    wins = sum(1 for match in matches 
+                              if match.get("winning_team") is not None 
+                              and match.get("team_id") == match.get("winning_team"))
+                    losses = sum(1 for match in matches 
+                                if match.get("winning_team") is not None 
+                                and match.get("team_id") != match.get("winning_team"))
+                    draws = total_matches - wins - losses
+
+                    total_kills = sum(match.get("basic_stats", {}).get("Kills", 0) for match in matches)
+                    total_deaths = sum(match.get("basic_stats", {}).get("Deaths", 0) for match in matches)
+                    total_assists = sum(match.get("basic_stats", {}).get("Assists", 0) for match in matches)
+                    
+                    # Calculate KDA ratio (avoid division by zero)
+                    kda_ratio = (total_kills + total_assists) / max(total_deaths, 1)
+                    
+                    # Calculate win rate (excluding draws)
+                    win_rate = wins / max(wins + losses, 1)
+                    
+                    # Display metrics in columns
+                    col1, col2, col3, col4 = st.columns(4)
+                    with col1:
+                        st.metric("Total Matches", f"{total_matches}")
+                        st.metric("Win Rate", f"{win_rate:.1%}")
+                    with col2:
+                        st.metric("Wins", f"{wins}")
+                        st.metric("KDA Ratio", f"{kda_ratio:.2f}")
+                    with col3:
+                        st.metric("Losses", f"{losses}")
+                        st.metric("Total Kills", f"{total_kills}")
+                    with col4:
+                        st.metric("Incomplete Matches", f"{draws}")
+                        st.metric("Total Deaths", f"{total_deaths}")
+                    
                     # Calculate performance metrics using the SDK helper method
                     add_log_message("INFO", "Calculating player performance metrics")
                     player_stats = sdk.calculate_player_performance(matches)
@@ -247,27 +282,6 @@ if fetch_button:
         
         # Display Statistics Overview
         st.subheader("Statistics Overview")
-        
-        # Calculate some derived stats if not provided
-        total_matches = player_stats.get("total_matches", 0)
-        total_wins = player_stats.get("wins", 0)
-        total_losses = player_stats.get("losses", total_matches - total_wins)
-        win_rate = player_stats.get("win_rate", total_wins / max(total_matches, 1))
-        
-        # Display key metrics
-        col1, col2, col3, col4 = st.columns(4)
-        
-        with col1:
-            st.metric("Total Matches", total_matches)
-            
-        with col2:
-            st.metric("Wins", total_wins)
-            
-        with col3:
-            st.metric("Losses", total_losses)
-            
-        with col4:
-            st.metric("Win Rate", f"{win_rate:.1%}")
         
         # Combat Performance metrics
         st.subheader("Combat Performance")
@@ -311,7 +325,7 @@ if fetch_button:
             # Pie chart for win/loss ratio
             fig = go.Figure(data=[go.Pie(
                 labels=['Wins', 'Losses'],
-                values=[total_wins, total_losses],
+                values=[wins, losses],
                 hole=.3,
                 marker_colors=['#4CAF50', '#F44336']
             )])

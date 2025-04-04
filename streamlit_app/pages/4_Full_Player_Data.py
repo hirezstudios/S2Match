@@ -150,7 +150,7 @@ if player_selection_method == "manual":
         display_name = st.text_input("Display Name", value="Weak3n")
         
     with col2:
-        platforms = ["Steam", "XboxLive", "PlayStation", "EpicGames", "Discord", "Switch"]
+        platforms = ["Steam", "XboxLive", "PlayStation", "EpicGames", "LegacyName", "Switch"]
         selected_platform = st.selectbox("Platform", platforms, index=0)
         
     with col3:
@@ -342,9 +342,7 @@ if fetch_button:
                     player_cols = st.columns(min(len(players), 3))
                     
                     for i, player in enumerate(players):
-                        col_idx = i % len(player_cols)
-                        
-                        with player_cols[col_idx]:
+                        with player_cols[i]:
                             player_uuid = player.get("player_uuid", "Unknown")
                             player_platform = player.get("platform", "Unknown")
                             linked_portals = player.get("linked_portals", [])
@@ -352,17 +350,18 @@ if fetch_button:
                             # Player card with styling
                             st.markdown(f"""
                             <div style="
-                                border: 1px solid #ddd;
+                                border: 1px solid #444;
                                 border-radius: 5px;
                                 padding: 15px;
                                 margin-bottom: 20px;
-                                background-color: #f8f9fa;
+                                background-color: #2a2a2a;
+                                color: #ffffff;
                             ">
-                                <h4 style="margin-top: 0;">{name}</h4>
-                                <p><strong>Platform:</strong> {player_platform}</p>
-                                <p><strong>Player UUID:</strong> {player_uuid}</p>
-                                <p><strong>Player ID:</strong> {player.get('player_id', 'Unknown')}</p>
-                                <p><strong>Linked Accounts:</strong> {len(linked_portals)}</p>
+                                <h4 style="margin-top: 0; color: #ffffff;">{name}</h4>
+                                <p><strong style="color: #cccccc;">Platform:</strong> {player_platform}</p>
+                                <p><strong style="color: #cccccc;">Player UUID:</strong> {player_uuid}</p>
+                                <p><strong style="color: #cccccc;">Player ID:</strong> {player.get('player_id', 'Unknown')}</p>
+                                <p><strong style="color: #cccccc;">Linked Accounts:</strong> {len(linked_portals)}</p>
                             </div>
                             """, unsafe_allow_html=True)
                             
@@ -375,180 +374,19 @@ if fetch_button:
                                         
                                         st.markdown(f"""
                                         <div style="
-                                            border: 1px solid #ddd;
+                                            border: 1px solid #444;
                                             border-radius: 5px;
                                             padding: 10px;
                                             margin-bottom: 10px;
-                                            background-color: #f0f0f0;
+                                            background-color: #1a1a1a;
+                                            color: #ffffff;
                                         ">
-                                            <p><strong>Platform:</strong> {portal_platform}</p>
-                                            <p><strong>Player UUID:</strong> {portal_uuid}</p>
-                                            <p><strong>Player ID:</strong> {portal.get('player_id', 'Unknown')}</p>
+                                            <p><strong style="color: #cccccc;">Platform:</strong> {portal_platform}</p>
+                                            <p><strong style="color: #cccccc;">Player UUID:</strong> {portal_uuid}</p>
+                                            <p><strong style="color: #cccccc;">Player ID:</strong> {portal.get('player_id', 'Unknown')}</p>
                                         </div>
                                         """, unsafe_allow_html=True)
             
-            # Visualize player connections if there are linked accounts
-            has_links = False
-            for display_name_dict in display_names_list:
-                for name, players in display_name_dict.items():
-                    for player in players:
-                        linked_portals = player.get("linked_portals", [])
-                        if linked_portals:
-                            has_links = True
-                            break
-                    if has_links:
-                        break
-                if has_links:
-                    break
-            
-            if has_links:
-                st.subheader("Account Connections")
-                st.write("Network visualization of player accounts across platforms:")
-                
-                try:
-                    # Prepare network data
-                    nodes = []
-                    edges = []
-                    
-                    for display_name_dict in display_names_list:
-                        for name, players in display_name_dict.items():
-                            for player in players:
-                                player_uuid = player.get("player_uuid")
-                                player_platform = player.get("platform", "Unknown")
-                                
-                                # Add main player node
-                                nodes.append({
-                                    "id": player_uuid,
-                                    "label": f"{name} ({player_platform})",
-                                    "platform": player_platform
-                                })
-                                
-                                # Add linked accounts and connections
-                                for portal in player.get("linked_portals", []):
-                                    portal_uuid = portal.get("player_uuid")
-                                    portal_platform = portal.get("platform", "Unknown")
-                                    
-                                    nodes.append({
-                                        "id": portal_uuid,
-                                        "label": f"Linked Account ({portal_platform})",
-                                        "platform": portal_platform
-                                    })
-                                    
-                                    edges.append({
-                                        "source": player_uuid,
-                                        "target": portal_uuid
-                                    })
-                    
-                    # Create a network visualization using Plotly
-                    import networkx as nx
-                    import plotly.graph_objects as go
-                    
-                    # Create NetworkX graph
-                    G = nx.Graph()
-                    
-                    # Add nodes
-                    for node in nodes:
-                        G.add_node(node["id"], label=node["label"], platform=node["platform"])
-                    
-                    # Add edges
-                    for edge in edges:
-                        G.add_edge(edge["source"], edge["target"])
-                    
-                    # Position nodes in a circle
-                    pos = nx.spring_layout(G)
-                    
-                    # Create node trace
-                    node_x = []
-                    node_y = []
-                    node_text = []
-                    node_color = []
-                    
-                    platform_colors = {
-                        "Steam": "#1b2838",
-                        "XboxLive": "#107c10",
-                        "PlayStation": "#003791",
-                        "EpicGames": "#2a2a2a",
-                        "Discord": "#7289da",
-                        "Switch": "#e60012",
-                        "Unknown": "#888888"
-                    }
-                    
-                    for node, position in pos.items():
-                        node_x.append(position[0])
-                        node_y.append(position[1])
-                        node_label = G.nodes[node]["label"]
-                        node_platform = G.nodes[node]["platform"]
-                        node_text.append(f"{node_label}<br>UUID: {node}")
-                        node_color.append(platform_colors.get(node_platform, "#888888"))
-                    
-                    node_trace = go.Scatter(
-                        x=node_x, y=node_y,
-                        mode='markers',
-                        hoverinfo='text',
-                        text=node_text,
-                        marker=dict(
-                            showscale=False,
-                            color=node_color,
-                            size=20,
-                            line=dict(width=2, color='#ffffff')
-                        )
-                    )
-                    
-                    # Create edge trace
-                    edge_x = []
-                    edge_y = []
-                    
-                    for edge in G.edges():
-                        x0, y0 = pos[edge[0]]
-                        x1, y1 = pos[edge[1]]
-                        edge_x.extend([x0, x1, None])
-                        edge_y.extend([y0, y1, None])
-                    
-                    edge_trace = go.Scatter(
-                        x=edge_x, y=edge_y,
-                        line=dict(width=1, color='#888'),
-                        hoverinfo='none',
-                        mode='lines'
-                    )
-                    
-                    # Create figure
-                    fig = go.Figure(data=[edge_trace, node_trace],
-                        layout=go.Layout(
-                            title=f'Linked Accounts for {display_name}',
-                            showlegend=False,
-                            hovermode='closest',
-                            margin=dict(b=20, l=5, r=5, t=40),
-                            xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-                            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False)
-                        )
-                    )
-                    
-                    st.plotly_chart(fig, use_container_width=True)
-                except Exception as e:
-                    st.error(f"Error creating account connections visualization: {str(e)}")
-                    
-                # Add legend for platform colors
-                st.write("**Platform Legend:**")
-                cols = st.columns(len(platform_colors))
-                for i, (platform, color) in enumerate(platform_colors.items()):
-                    with cols[i]:
-                        st.markdown(f"""
-                        <div style="
-                            display: flex;
-                            align-items: center;
-                            margin-bottom: 5px;
-                        ">
-                            <div style="
-                                width: 15px;
-                                height: 15px;
-                                background-color: {color};
-                                margin-right: 5px;
-                                border-radius: 50%;
-                            "></div>
-                            <span>{platform}</span>
-                        </div>
-                        """, unsafe_allow_html=True)
-                
             # Display placeholder for next tabs
             st.info("Check the other tabs to view statistics, ranks, and match history!")
 
@@ -727,16 +565,17 @@ if fetch_button:
                             # Create rank card
                             st.markdown(f"""
                             <div style="
-                                border: 1px solid #ddd;
+                                border: 1px solid #444;
                                 border-radius: 5px;
                                 padding: 15px;
                                 margin-bottom: 20px;
-                                background-color: #f8f9fa;
+                                background-color: #2a2a2a;
+                                color: #ffffff;
                             ">
-                                <h4 style="margin-top: 0;">{rank_name}</h4>
-                                <p><em>{rank_description}</em></p>
-                                <p><strong>Player:</strong> {player_name} ({player_platform})</p>
-                                <p><strong>Rank ID:</strong> {rank_id}</p>
+                                <h4 style="margin-top: 0; color: #ffffff;">{rank_name}</h4>
+                                <p><em style="color: #cccccc;">{rank_description}</em></p>
+                                <p><strong style="color: #cccccc;">Player:</strong> {player_name} ({player_platform})</p>
+                                <p><strong style="color: #cccccc;">Rank ID:</strong> {rank_id}</p>
                             </div>
                             """, unsafe_allow_html=True)
                             
@@ -756,16 +595,16 @@ if fetch_button:
                                             margin-bottom: 10px;
                                         ">
                                             <div style="text-align: center;">
-                                                <h5>Tier</h5>
-                                                <p style="font-size: 1.5em; font-weight: bold;">{tier}</p>
+                                                <h5 style="color: #cccccc;">Tier</h5>
+                                                <p style="font-size: 1.5em; font-weight: bold; color: #ffffff;">{tier}</p>
                                             </div>
                                             <div style="text-align: center;">
-                                                <h5>Division</h5>
-                                                <p style="font-size: 1.5em; font-weight: bold;">{division}</p>
+                                                <h5 style="color: #cccccc;">Division</h5>
+                                                <p style="font-size: 1.5em; font-weight: bold; color: #ffffff;">{division}</p>
                                             </div>
                                             <div style="text-align: center;">
-                                                <h5>Points</h5>
-                                                <p style="font-size: 1.5em; font-weight: bold;">{points}</p>
+                                                <h5 style="color: #cccccc;">Points</h5>
+                                                <p style="font-size: 1.5em; font-weight: bold; color: #ffffff;">{points}</p>
                                             </div>
                                         </div>
                                         """, unsafe_allow_html=True)

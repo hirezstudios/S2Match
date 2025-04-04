@@ -297,11 +297,11 @@ if ("all_matches" in st.session_state):
                              key="mode_selector",
                              on_change=update_mode_filter)
                 
-                st.radio("Result", 
-                         options=["Any", "Wins Only", "Losses Only"], 
-                         index=["Any", "Wins Only", "Losses Only"].index(st.session_state["filter_result"]),
-                         key="result_selector",
-                         on_change=update_result_filter)
+                st.selectbox("Result", 
+                             options=["Any", "Wins Only", "Losses Only"], 
+                             index=0 if st.session_state["filter_result"] == "Any" else 1 if st.session_state["filter_result"] == "Wins Only" else 2,
+                             key="result_selector",
+                             on_change=update_result_filter)
             
             with filter_col2:
                 # Performance filters
@@ -398,7 +398,7 @@ if ("all_matches" in st.session_state):
                     st.success(f"Filtered to {len(filtered_matches)} matches using {len(filters)} criteria")
                 
             def reset_filters():
-                # Reset filter selections
+                # Reset filter selections in session state
                 st.session_state["filter_god"] = "Any"
                 st.session_state["filter_mode"] = "Any"
                 st.session_state["filter_result"] = "Any"
@@ -409,7 +409,7 @@ if ("all_matches" in st.session_state):
                 st.session_state["filtered_matches"] = st.session_state["all_matches"]
                 st.session_state["filter_applied"] = False
                 
-                st.success("Filters reset - showing all matches")
+                st.success("Filters reset - showing all matches")                
             
             with col1:
                 if st.button("Apply Filters"):
@@ -458,8 +458,13 @@ if ("all_matches" in st.session_state):
         
         # Calculate some aggregate stats
         total_matches = len(matches)
-        wins = sum(1 for match in matches if match.get("team_id") == match.get("winning_team"))
-        losses = total_matches - wins
+        wins = sum(1 for match in matches 
+                  if match.get("winning_team") is not None 
+                  and match.get("team_id") == match.get("winning_team"))
+        losses = sum(1 for match in matches 
+                    if match.get("winning_team") is not None 
+                    and match.get("team_id") != match.get("winning_team"))
+        draws = total_matches - wins - losses
         
         total_kills = sum(match.get("basic_stats", {}).get("Kills", 0) for match in matches)
         total_deaths = sum(match.get("basic_stats", {}).get("Deaths", 0) for match in matches)
@@ -476,27 +481,26 @@ if ("all_matches" in st.session_state):
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
-            st.metric("Matches", total_matches)
-            st.metric("Win Rate", f"{win_rate:.1%}")
-            
+            st.metric("Matches", total_matches)            
+            st.metric("Total Kills", total_kills)
         with col2:
-            st.metric("Wins", wins)
-            st.metric("Losses", losses)
-            
+            st.metric("Wins/Losses", f"{wins}/{losses}")
+            st.metric("Total Deaths", total_deaths)
         with col3:
-            st.metric("Avg K/D/A", f"{avg_kills:.1f}/{avg_deaths:.1f}/{avg_assists:.1f}")
+            st.metric("Win Rate", f"{win_rate:.1%}")
+            st.metric("Avg K/D/A", f"{avg_kills:.1f}/{avg_deaths:.1f}/{avg_assists:.1f}")            
+        with col4:
+            st.metric("Incomplete Matches", f"{draws}")
             st.metric("KDA Ratio", f"{kda_ratio:.2f}")
             
-        with col4:
-            st.metric("Total Kills", total_kills)
-            st.metric("Total Deaths", total_deaths)
         
+        st.markdown("<br>", unsafe_allow_html=True)
         # Performance Visualization
         st.subheader("Match Performance")
         
         # Create KDA chart using the utility function
         try:
-            fig = create_kda_chart(matches, player_name="Player")
+            fig = create_kda_chart(matches, player_name=st.session_state.get("selected_player_name", "Player"))
             if fig:
                 st.plotly_chart(fig, use_container_width=True)
         except Exception as e:
@@ -566,145 +570,46 @@ if ("all_matches" in st.session_state):
                     god_df,
                     x="God",
                     y="Win Rate",
-                    color="Matches",
                     text_auto=".0%",
                     title="Win Rate by God/Character",
-                    labels={"Win Rate": "Win Rate", "God": "God/Character", "Matches": "Number of Matches"},
+                    labels={"Win Rate": "Win Rate", "God": "God/Character"},
                     height=400,
-                    color_continuous_scale=px.colors.sequential.Blues
+                    color_discrete_sequence=["#1f77b4"]  # Use a consistent blue color for all bars
                 )
                 win_rate_fig.update_layout(xaxis_tickangle=-45)
                 st.plotly_chart(win_rate_fig, use_container_width=True)
             except Exception as e:
                 st.error(f"Error creating win rate chart: {str(e)}")
         
-        # Match List
-        st.subheader("Match List")
-        
         # Create tabs for match details
-        match_tabs = st.tabs(["Match Cards", "Table View", "Raw Data"])
+        match_tabs = st.tabs(["Table View", "Raw Data"])
         
         with match_tabs[0]:
-            # Match Cards View
-            # Display matches in a grid of cards
-            cols_per_row = 3
-            rows = [matches[i:i+cols_per_row] for i in range(0, len(matches), cols_per_row)]
-            
-            for row in rows:
-                cols = st.columns(cols_per_row)
-                
-                for i, match in enumerate(row):
-                    with cols[i]:
-                        # Extract match info
-                        match_id = match.get("match_id", "Unknown")
-                        god = match.get("god_name", "Unknown")
-                        mode = match.get("mode", "Unknown")
-                        map_name = match.get("map", "Unknown")
-                        
-                        # Match result
-                        result = "Victory" if match.get("team_id") == match.get("winning_team") else "Defeat"
-                        result_color = "#4CAF50" if result == "Victory" else "#F44336"
-                        
-                        # Match date
-                        match_date = "Unknown"
-                        if match.get("match_start"):
-                            try:
-                                date_obj = datetime.fromisoformat(match.get("match_start").replace('Z', '+00:00'))
-                                match_date = date_obj.strftime("%Y-%m-%d %H:%M")
-                            except:
-                                pass
-                        
-                        # Stats
-                        basic_stats = match.get("basic_stats", {})
-                        kills = basic_stats.get("Kills", 0)
-                        deaths = basic_stats.get("Deaths", 0)
-                        assists = basic_stats.get("Assists", 0)
-                        
-                        # Create card
-                        st.markdown(f"""
-                        <div style="
-                            border: 1px solid #ddd;
-                            border-radius: 5px;
-                            padding: 15px;
-                            margin-bottom: 20px;
-                            background-color: #f8f9fa;
-                        ">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                                <span style="font-weight: bold;">{god}</span>
-                                <span style="color: {result_color}; font-weight: bold;">{result}</span>
-                            </div>
-                            <p style="margin-bottom: 5px;"><span style="font-weight: bold;">Mode:</span> {mode}</p>
-                            <p style="margin-bottom: 5px;"><span style="font-weight: bold;">Map:</span> {map_name}</p>
-                            <p style="margin-bottom: 5px;"><span style="font-weight: bold;">Date:</span> {match_date}</p>
-                            <p style="margin-bottom: 5px;"><span style="font-weight: bold;">K/D/A:</span> {kills}/{deaths}/{assists}</p>
-                            <p style="margin-bottom: 0;"><span style="font-weight: bold;">Match ID:</span> {match_id}</p>
-                        </div>
-                        """, unsafe_allow_html=True)
-                        
-                        # Add button to view detailed match
-                        if st.button("View Details", key=f"view_match_{match_id}"):
-                            st.session_state["selected_match"] = match
-                        
-        with match_tabs[1]:
             # Table View
-            # Convert matches to DataFrame
+            st.markdown("### Match List")
+            st.markdown("View all matches in a table format.")
+            
+            # Create DataFrame for matches
             match_data = []
             for match in matches:
-                basic_stats = match.get("basic_stats", {})
-                
-                # Format date
-                match_date = "Unknown"
-                if match.get("match_start"):
-                    try:
-                        date_obj = datetime.fromisoformat(match.get("match_start").replace('Z', '+00:00'))
-                        match_date = date_obj.strftime("%Y-%m-%d %H:%M")
-                    except:
-                        pass
-                
-                # Result
-                result = "Victory" if match.get("team_id") == match.get("winning_team") else "Defeat"
-                
                 match_data.append({
                     "Match ID": match.get("match_id", "Unknown"),
-                    "Date": match_date,
-                    "God": match.get("god_name", "Unknown"),
-                    "Mode": match.get("mode", "Unknown"),
-                    "Map": match.get("map", "Unknown"),
-                    "Result": result,
-                    "Kills": basic_stats.get("Kills", 0),
-                    "Deaths": basic_stats.get("Deaths", 0),
-                    "Assists": basic_stats.get("Assists", 0),
-                    "KDA": (basic_stats.get("Kills", 0) + basic_stats.get("Assists", 0)) / max(basic_stats.get("Deaths", 1), 1),
-                    "Damage": basic_stats.get("TotalDamage", 0),
-                    "Healing": basic_stats.get("TotalAllyHealing", 0) + basic_stats.get("TotalSelfHealing", 0)
+                    "God": match.get("god", "Unknown"),
+                    "Mode": match.get("game_mode", "Unknown"),
+                    "Result": "Victory" if match.get("team_id") == match.get("winning_team") else "Defeat",
+                    "KDA": match.get("basic_stats", {}).get("KDA", "0/0/0"),
+                    "Duration": match.get("match_duration", "0:00"),
+                    "Time": match.get("match_time", "Unknown")
                 })
             
-            match_df = pd.DataFrame(match_data)
-            
-            # Display as a table
-            st.dataframe(
-                match_df.style.format({
-                    "KDA": "{:.2f}",
-                    "Damage": "{:,.0f}",
-                    "Healing": "{:,.0f}"
-                }),
-                use_container_width=True
-            )
-            
-        with match_tabs[2]:
-            # Raw Data View
+            df = pd.DataFrame(match_data)
+            st.dataframe(df, use_container_width=True)
+        
+        with match_tabs[1]:
+            # Raw Data tab
             st.write("Raw match data in JSON format:")
-            display_json(matches, title="Match Data")
-            
-            # Download button
-            json_str = json.dumps(matches, indent=2)
-            st.download_button(
-                label="Download JSON",
-                data=json_str,
-                file_name="match_history.json",
-                mime="application/json"
-            )
-            
+            display_json(match, title="Match Data")
+
 # Detailed Match View
 if "selected_match" in st.session_state:
     match = st.session_state["selected_match"]
