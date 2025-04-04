@@ -235,9 +235,12 @@ if fetch_button:
             st.warning("No matches found for this player")
             st.stop()
             
-        matches_to_display = st.session_state["filtered_matches"] if st.session_state["filter_applied"] else st.session_state["all_matches"]
-        st.success(f"Found {len(matches_to_display)} matches!" + (" (filtered)" if st.session_state["filter_applied"] else ""))
+        st.success(f"Found {len(matches)} matches!" + (" (filtered)" if st.session_state["filter_applied"] else ""))
         
+if ("all_matches" in st.session_state):
+        matches_to_display = st.session_state["filtered_matches"] if st.session_state["filter_applied"] else st.session_state["all_matches"]
+    #if (matches_to_display is not None):
+
         # Simple filtering section
         st.subheader("Filter Matches")
         
@@ -381,6 +384,8 @@ if fetch_button:
                     else:
                         # Use SDK's filter_matches method
                         filtered_matches = sdk.filter_matches(st.session_state["all_matches"], filters)
+                else:
+                    filtered_matches = st.session_state["all_matches"]
                 
                 # Save filtered matches to session state
                 st.session_state["filtered_matches"] = filtered_matches

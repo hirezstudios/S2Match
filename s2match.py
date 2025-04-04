@@ -1297,12 +1297,16 @@ class S2Match:
                         logger.warning(f"Invalid date format for match {match.get('match_id')}: {e}")
             
             # Filter by win/loss
-            if "win_only" in filters and filters["win_only"]:
+            if "win_only" in filters:
                 winning_team = match.get("winning_team")
                 team_id = match.get("team_id")
                 if winning_team is not None and team_id is not None:
-                    if team_id != winning_team:
+                    if filters["win_only"] and team_id != winning_team:
                         include = False
+                    elif filters["win_only"] == False and team_id == winning_team:
+                        include = False
+                else:
+                    include = False
             
             # Filter by performance stats
             basic_stats = match.get("basic_stats", {})

@@ -70,7 +70,7 @@ if not st.session_state.get("sdk_initialized", False):
     st.warning("SDK is not initialized. Using demo data instead. Please initialize the SDK in the Home page for live data.")
     add_log_message("WARNING", "Using demo data - SDK not initialized")
     demo_mode = True
-    demo_data = st.session_state.get("demo_data", load_demo_data())
+    demo_data = st.session_state.get("demo_data", load_demo_data())    
 else:
     demo_mode = False
     sdk = st.session_state.sdk_instance
@@ -194,9 +194,9 @@ if search_button:
                         platforms.remove(player.get("platform"))
                         for i in range(min(2, len(platforms))):
                             linked_portal = {
-                                "player_uuid": f"linked-{hash(player.get('player_uuid') + i) % 10000}",
+                                "player_uuid": f"linked-{hash(player.get('player_uuid')) % 10000}",
                                 "platform": platforms[i],
-                                "player_id": hash(player.get("player_uuid") + i) % 10000
+                                "player_id": hash(player.get("player_uuid") ) % 10000
                             }
                             player_obj["linked_portals"].append(linked_portal)
                     
@@ -492,7 +492,8 @@ for player in players:
                         st.markdown("---")
                         
             # Using the new extract_player_uuids helper method
-            player_uuids = sdk.extract_player_uuids(player_data)            
+            if (demo_mode == False):
+                player_uuids = sdk.extract_player_uuids(player_data)            
         else:
             st.warning(f"No players found with the name '{display_name}' on {platform}")
      
